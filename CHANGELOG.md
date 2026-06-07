@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - (add upcoming changes here)
 
+## [0.1.1] - 2026-06-08
+
+### Fixed
+- Packaged launcher now auto-selects the next free port when the configured
+  port (default 8000) is busy, instead of failing to bind and exiting.
+- The console window stays open on a startup error (frozen builds) so the
+  message is readable instead of flashing and closing.
+- CI: backend test collection (`No module named 'app'`) — added
+  `backend/conftest.py` and run tests via `python -m pytest`.
+
 ## [0.1.0] - 2026-06-05
 
 First public release. 🎉
@@ -54,5 +64,6 @@ First public release. 🎉
 - Single-process deployment (backend serves the built frontend); Docker image + Compose.
 - CI (pytest + frontend build + image build) and GHCR release workflow.
 
-[Unreleased]: https://github.com/mknjibhuvgyo2/portpilot-ai/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/mknjibhuvgyo2/portpilot-ai/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/mknjibhuvgyo2/portpilot-ai/releases/tag/v0.1.1
 [0.1.0]: https://github.com/mknjibhuvgyo2/portpilot-ai/releases/tag/v0.1.0
