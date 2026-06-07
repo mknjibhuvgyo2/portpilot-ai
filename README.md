@@ -18,14 +18,9 @@
 
 ## 📸 截图 / Screenshots
 
-> 启动后访问 `http://localhost:8000`，将界面截图 / 演示 GIF 放到 `docs/` 并取消下面的注释即可展示。
-> Run it, capture screenshots into `docs/`, then uncomment the table below.
-
-<!-- 取消注释并放入对应图片即可：
 | 监控总览 Dashboard | 端口编辑 Ports | 提示词逆推 PromptLab |
 | --- | --- | --- |
 | ![dashboard](docs/dashboard.png) | ![ports](docs/ports.png) | ![promptlab](docs/promptlab.png) |
--->
 
 ---
 
