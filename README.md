@@ -63,6 +63,26 @@
 
 ---
 
+## 📦 下载 / Downloads
+
+三种获取方式：
+
+1. **预编译安装包**（无需 Python/Node）— 见 [Releases](https://github.com/mknjibhuvgyo2/portpilot-ai/releases)：
+   - Windows x64 — `porthub-<ver>-windows-x64.zip`（解压运行 `porthub.exe`）
+   - Linux x64 / arm64 — `.tar.gz` 或 `.deb`（`sudo dpkg -i porthub_<ver>_amd64.deb` 后运行 `porthub`）
+   - macOS x64 / arm64 — `PORTHUB-<ver>-macos-<arch>.zip`（解压得 `PORTHUB.app`）
+
+   运行后自动打开 `http://localhost:8000`；运行数据存在可执行文件旁的 `data/` 目录。
+   *（安装包由 GitHub Actions 在各平台原生 runner 上用 PyInstaller 构建，见 [`.github/workflows/package.yml`](.github/workflows/package.yml)；打 `vX.Y.Z` tag 自动产出并附到 Release。）*
+
+2. **Docker 镜像** — 发布到 GHCR（GitHub Packages）：`ghcr.io/mknjibhuvgyo2/portpilot-ai`（见下方 Docker 启动）。
+
+3. **源码运行** — 见「本地开发」。
+
+> macOS 首次打开未签名 `.app` 会被 Gatekeeper 拦：右键 → 打开，或 `xattr -dr com.apple.quarantine PORTHUB.app`。
+
+---
+
 ## 🚀 5 分钟 Docker 启动 / Quickstart
 
 > 需要 Docker（含 Docker Compose）。

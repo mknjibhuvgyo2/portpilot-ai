@@ -14,6 +14,13 @@ data/
 *.log
 data/secret.key
 
+# PyInstaller / packaging output
+/build/
+/dist/
+/out/
+*.spec.bak
+pkgroot/
+
 # Editor / OS
 .DS_Store
 Thumbs.db

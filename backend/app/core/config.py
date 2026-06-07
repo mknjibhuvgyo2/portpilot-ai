@@ -2,20 +2,39 @@
 from __future__ import annotations
 
 import secrets
+import sys
 from functools import lru_cache
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-# Repository root: backend/app/core/config.py -> parents[3] == repo root
-REPO_ROOT = Path(__file__).resolve().parents[3]
-DATA_DIR = REPO_ROOT / "data"
+
+def _frozen() -> bool:
+    """True when running from a PyInstaller bundle (exe/.app/binary)."""
+    return bool(getattr(sys, "frozen", False))
+
+
+if _frozen():
+    # Bundled assets (read-only) live under the PyInstaller extraction dir;
+    # writable runtime data lives next to the executable so it persists.
+    _BUNDLE_DIR = Path(getattr(sys, "_MEIPASS", Path(sys.executable).resolve().parent))
+    _EXE_DIR = Path(sys.executable).resolve().parent
+    DATA_DIR = _EXE_DIR / "data"
+    _FRONTEND_DIST = _BUNDLE_DIR / "frontend" / "dist"
+    _ENV_FILE = _EXE_DIR / ".env"
+else:
+    # Repository root: backend/app/core/config.py -> parents[3] == repo root
+    REPO_ROOT = Path(__file__).resolve().parents[3]
+    DATA_DIR = REPO_ROOT / "data"
+    _FRONTEND_DIST = REPO_ROOT / "frontend" / "dist"
+    _ENV_FILE = REPO_ROOT / "backend" / ".env"
+
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=str(REPO_ROOT / "backend" / ".env"),
+        env_file=str(_ENV_FILE),
         env_prefix="HUB_",
         extra="ignore",
     )
@@ -40,7 +59,7 @@ class Settings(BaseSettings):
     database_url: str = f"sqlite:///{(DATA_DIR / 'hub.db').as_posix()}"
 
     # --- Frontend static dir (built Vue app) ---
-    frontend_dist: str = str(REPO_ROOT / "frontend" / "dist")
+    frontend_dist: str = str(_FRONTEND_DIST)
 
     # --- Defaults for new port services ---
     default_request_timeout: float = 120.0

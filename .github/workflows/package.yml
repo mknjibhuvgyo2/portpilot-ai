@@ -1,0 +1,124 @@
+name: Package binaries
+
+# Builds standalone binaries (exe / .deb / .app) for x64 + arm64 on native
+# runners and attaches them to the GitHub Release. PyInstaller cannot
+# cross-compile, hence one job per OS/arch.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write   # needed to upload Release assets
+
+jobs:
+  build:
+    name: ${{ matrix.label }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { runner: windows-latest,   os: windows, arch: x64,   label: windows-x64 }
+          - { runner: ubuntu-22.04,     os: linux,   arch: x64,   label: linux-x64 }
+          - { runner: ubuntu-24.04-arm, os: linux,   arch: arm64, label: linux-arm64 }
+          - { runner: macos-13,         os: macos,   arch: x64,   label: macos-x64 }
+          - { runner: macos-14,         os: macos,   arch: arm64, label: macos-arm64 }
+    steps:
+      - uses: actions/checkout@v4
+
+      # ---- version ----
+      - name: Resolve version
+        shell: bash
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+        # workflow_dispatch (no tag) falls back below
+      - name: Default version
+        if: env.VERSION == '' || startsWith(github.ref, 'refs/tags/') == false
+        shell: bash
+        run: echo "VERSION=0.1.0-dev" >> "$GITHUB_ENV"
+
+      # ---- build frontend ----
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm ci || npm install
+          npm run build
+
+      # ---- python + pyinstaller ----
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install backend deps + PyInstaller
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
+
+      - name: Build binary
+        run: pyinstaller packaging/porthub.spec --noconfirm
+
+      # ---- package (Windows) ----
+      - name: Package (Windows)
+        if: matrix.os == 'windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force out | Out-Null
+          Compress-Archive -Path dist/porthub.exe -DestinationPath "out/porthub-${{ env.VERSION }}-windows-${{ matrix.arch }}.zip" -Force
+
+      # ---- package (Linux: tar.gz + .deb) ----
+      - name: Package (Linux)
+        if: matrix.os == 'linux'
+        shell: bash
+        run: |
+          set -e
+          mkdir -p out
+          chmod +x dist/porthub
+          tar -C dist -czf "out/porthub-${{ env.VERSION }}-linux-${{ matrix.arch }}.tar.gz" porthub
+          # minimal .deb
+          DEBARCH=$([ "${{ matrix.arch }}" = "arm64" ] && echo arm64 || echo amd64)
+          PKG="pkgroot"
+          rm -rf "$PKG"; mkdir -p "$PKG/DEBIAN" "$PKG/usr/bin" "$PKG/usr/share/doc/porthub"
+          install -m0755 dist/porthub "$PKG/usr/bin/porthub"
+          cp README.md "$PKG/usr/share/doc/porthub/README.md" || true
+          cat > "$PKG/DEBIAN/control" <<EOF
+          Package: porthub
+          Version: ${{ env.VERSION }}
+          Section: utils
+          Priority: optional
+          Architecture: ${DEBARCH}
+          Maintainer: PORTHUB contributors <15510677351@163.com>
+          Description: PORTHUB - self-hosted multi-port AI service platform
+           Runs the FastAPI backend with the bundled web UI. Start with: porthub
+          EOF
+          dpkg-deb --build --root-owner-group "$PKG" "out/porthub_${{ env.VERSION }}_${DEBARCH}.deb"
+
+      # ---- package (macOS: zip the .app) ----
+      - name: Package (macOS)
+        if: matrix.os == 'macos'
+        shell: bash
+        run: |
+          set -e
+          mkdir -p out
+          if [ -d dist/PORTHUB.app ]; then
+            ditto -c -k --keepParent dist/PORTHUB.app "out/PORTHUB-${{ env.VERSION }}-macos-${{ matrix.arch }}.zip"
+          else
+            chmod +x dist/porthub
+            tar -C dist -czf "out/porthub-${{ env.VERSION }}-macos-${{ matrix.arch }}.tar.gz" porthub
+          fi
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: porthub-${{ matrix.label }}
+          path: out/*
+
+      - name: Attach to Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: out/*
