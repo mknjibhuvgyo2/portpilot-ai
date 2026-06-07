@@ -1,0 +1,60 @@
+name: "🐛 Bug report"
+description: "Report a problem / 报告一个问题"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈！请先搜索是否已有相同 issue。Please search existing issues first.
+        ⚠️ 安全漏洞请勿在此公开，按 SECURITY.md 私下报告。
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 问题描述 / What happened?
+      description: 清楚描述 bug，以及你期望的行为。
+      placeholder: 我做了 X，期望 Y，结果 Z…
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: 复现步骤 / Steps to reproduce
+      placeholder: |
+        1. 打开 …
+        2. 点击 …
+        3. 看到错误 …
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 日志 / 截图 / Logs & screenshots
+      description: 后端控制台日志、浏览器 console 报错、截图等（请脱敏，勿贴真实密钥）。
+      render: shell
+  - type: dropdown
+    id: deploy
+    attributes:
+      label: 部署方式 / Deployment
+      options:
+        - Docker (compose)
+        - Docker (run)
+        - Source (uvicorn + vite)
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: 版本 / Version (or git commit)
+      placeholder: "0.1.0 / commit abc1234"
+    validations:
+      required: true
+  - type: textarea
+    id: env
+    attributes:
+      label: 环境 / Environment
+      description: OS、Python、Node、浏览器、（如相关）GPU 与本地引擎（Ollama/LM Studio/llama.cpp）。
+      placeholder: |
+        OS: Windows 11 / Ubuntu 22.04
+        Python 3.12, Node 22
+        GPU: RTX 4090, Ollama 0.x

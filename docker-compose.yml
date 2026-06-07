@@ -1,0 +1,43 @@
+# AI Port Hub — single-container deployment.
+#
+#   docker compose up -d --build
+#
+# The hub listens on :8000 (UI + API + gateway). Port *services* you create in
+# the UI bind their own ports inside the container — either publish them here as
+# you add them, or use host networking (see the commented block below) so every
+# port the hub opens is reachable on the host without per-port mapping.
+services:
+  porthub:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ai-port-hub:latest
+    container_name: porthub
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+      # publish additional port-service ports as you create them, e.g.:
+      # - "9001:9001"
+      # - "9002:9002"
+    environment:
+      # set a fixed admin password on first run (otherwise printed to logs)
+      HUB_ADMIN_PASSWORD: ${HUB_ADMIN_PASSWORD:-}
+      # optional: pin the JWT secret so tokens survive restarts
+      HUB_SECRET_KEY: ${HUB_SECRET_KEY:-}
+    volumes:
+      - porthub-data:/app/data
+    # --- For local LLM engines on the host (Ollama :11434, LM Studio :1234,
+    #     llama.cpp :8085), reach them via host.docker.internal: ---
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # --- Alternative: host networking (Linux) so all hub-opened ports are on the
+  #     host directly and host-local engines are reachable on 127.0.0.1. Swap the
+  #     service above for this if you create many port services.
+  # porthub-hostnet:
+  #   build: { context: ., dockerfile: Dockerfile }
+  #   network_mode: host
+  #   volumes: [ "porthub-data:/app/data" ]
+
+volumes:
+  porthub-data:
