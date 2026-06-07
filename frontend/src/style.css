@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light dark; }
+html, body, #app { height: 100%; margin: 0; }
+
+body {
+  font-family: 'Zen Maru Gothic', ui-sans-serif, -apple-system, 'PingFang SC',
+    'Microsoft YaHei', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Locale-aware glyphs: the wafu Japanese webfonts (Zen Maru Gothic / Shippori
+   Mincho) carry Japanese-form CJK glyphs — e.g. 口 renders with odd rounded
+   proportions that look wrong to Chinese readers. For zh, prefer Chinese fonts
+   (system first, no extra download) so glyphs are region-correct; ja/en keep
+   the wafu fonts. Driven by the <html lang> set in i18n/index.ts.
+   `:lang(zh)` also matches the default lang="zh-CN". */
+:lang(zh) {
+  --font-zh-sans: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC',
+    'Hiragino Sans GB', 'Source Han Sans SC', ui-sans-serif, system-ui, sans-serif;
+  --font-zh-serif: 'Songti SC', 'STSong', 'Noto Serif SC', 'Source Han Serif SC',
+    'SimSun', 'Yu Mincho', serif;
+}
+:lang(zh) body,
+:lang(zh) .font-sans { font-family: var(--font-zh-sans); }
+:lang(zh) .font-serif,
+:lang(zh) .heading,
+:lang(zh) .label,
+:lang(zh) .grad-text { font-family: var(--font-zh-serif); }
+
+/* Transitions */
+.slide-enter-active, .slide-leave-active { transition: opacity 0.22s ease, transform 0.22s ease; }
+.slide-enter-from, .slide-leave-to { opacity: 0; transform: translateY(-6px); }
+.fade-enter-active, .fade-leave-active { transition: opacity 0.25s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+
+/* ---- Washi paper background with faint seigaiha (青海波) wave motif ---- */
+.bg-washi {
+  background-color: #f5efe2;
+  background-image:
+    radial-gradient(60rem 40rem at 108% -12%, rgba(63, 93, 131, 0.06), transparent 60%),
+    radial-gradient(48rem 30rem at -8% 112%, rgba(176, 141, 87, 0.07), transparent 55%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40' viewBox='0 0 80 40'%3E%3Cg fill='none' stroke='%23b9a888' stroke-width='1' stroke-opacity='0.18'%3E%3Cpath d='M0 40a20 20 0 0 1 40 0a20 20 0 0 1 40 0'/%3E%3Cpath d='M0 32a20 20 0 0 1 40 0a20 20 0 0 1 40 0'/%3E%3Cpath d='M0 24a20 20 0 0 1 40 0a20 20 0 0 1 40 0'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: auto, auto, 80px 40px;
+}
+.dark .bg-washi {
+  background-color: #161109;
+  background-image:
+    radial-gradient(60rem 40rem at 108% -12%, rgba(95, 125, 163, 0.12), transparent 60%),
+    radial-gradient(48rem 30rem at -8% 112%, rgba(176, 141, 87, 0.10), transparent 55%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40' viewBox='0 0 80 40'%3E%3Cg fill='none' stroke='%23c9b48a' stroke-width='1' stroke-opacity='0.10'%3E%3Cpath d='M0 40a20 20 0 0 1 40 0a20 20 0 0 1 40 0'/%3E%3Cpath d='M0 32a20 20 0 0 1 40 0a20 20 0 0 1 40 0'/%3E%3Cpath d='M0 24a20 20 0 0 1 40 0a20 20 0 0 1 40 0'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* asanoha (麻の葉) faint texture, for decorative panels */
+.tex-asanoha {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='96' viewBox='0 0 56 96'%3E%3Cg fill='none' stroke='%23b9a888' stroke-width='1' stroke-opacity='0.5'%3E%3Cpath d='M28 0v24M28 24 7 36M28 24 49 36M7 36v24M49 36v24M7 60 28 72M49 60 28 72M28 72v24M28 24 28 48 7 36M28 48 49 36M28 48 28 72'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 56px 96px;
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-md border px-3 py-1.5
+      text-xs font-medium tracking-wide transition-all focus:outline-none
+      disabled:opacity-40 disabled:pointer-events-none;
+  }
+  .btn-primary {
+    @apply btn border-ai-800/40 bg-accent-grad text-steel-50 shadow-glow-sm
+      hover:brightness-110 active:brightness-95;
+  }
+  .btn-ghost {
+    @apply btn border-steel-300/70 bg-steel-50/70 text-steel-700 backdrop-blur
+      hover:border-kin-400 hover:bg-steel-50 hover:text-steel-900
+      dark:border-steel-700 dark:bg-steel-800/40 dark:text-steel-200
+      dark:hover:border-kin-500 dark:hover:bg-steel-800;
+  }
+  .btn-danger {
+    @apply btn border-aka-500/30 bg-aka-500/5 text-aka-600 hover:bg-aka-500/10
+      dark:text-aka-400;
+  }
+  .card {
+    @apply relative rounded-lg border border-steel-200/80 bg-steel-50/80 p-4 shadow-soft
+      backdrop-blur-sm transition-shadow
+      dark:border-steel-800 dark:bg-steel-900/70;
+  }
+  .card-hover { @apply hover:-translate-y-0.5 hover:border-kin-400/70 hover:shadow-glow; }
+  .input {
+    @apply w-full rounded-md border border-steel-300 bg-steel-50 px-3 py-2 text-sm
+      text-steel-900 outline-none transition-colors
+      focus:border-ai-500 focus:ring-2 focus:ring-ai-500/20
+      dark:border-steel-700 dark:bg-steel-950/50 dark:text-steel-100 dark:focus:border-ai-400;
+  }
+  .label {
+    @apply mb-1 block font-serif text-[11px] font-semibold tracking-[0.18em]
+      text-steel-500 dark:text-steel-400;
+  }
+  .stat { @apply font-mono tabular-nums; }
+  .dot { @apply inline-block h-1.5 w-1.5 rounded-full; }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px]
+      font-semibold tracking-wider;
+  }
+  .heading {
+    @apply flex items-center gap-2.5 font-serif text-lg font-bold tracking-wide
+      text-steel-900 dark:text-steel-50;
+  }
+  .grad-text { @apply font-serif text-ai-700 dark:text-kin-400; }
+  /* circular crest (家紋風) logo mark */
+  .logo-mark {
+    @apply flex h-9 w-9 items-center justify-center rounded-full border border-kin-500/50
+      bg-accent-grad text-steel-50 shadow-glow-sm;
+  }
+  .nav-item {
+    @apply relative flex items-center gap-3 rounded-md px-2.5 py-2 text-sm font-medium
+      text-steel-500 transition-colors hover:bg-steel-200/50
+      dark:text-steel-400 dark:hover:bg-steel-800/50;
+  }
+  .nav-item-active {
+    @apply !bg-accent-grad-soft !text-ai-700 dark:!text-kin-400;
+  }
+  /* thin gold rule used as elegant divider */
+  .kin-rule {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-kin-400/50 to-transparent;
+  }
+}

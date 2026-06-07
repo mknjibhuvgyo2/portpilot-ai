@@ -1,0 +1,58 @@
+# Changelog
+
+All notable changes to this project are documented here.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+- (add upcoming changes here)
+
+## [0.1.0] - 2026-06-05
+
+First public release. 🎉
+
+### Added
+
+**Core**
+- Multi-port service orchestration: register a port service, start/stop, health checks; each exposes an OpenAI-compatible endpoint.
+- Unified model layer: model routes (aliases) with primary + fallback chain, guaranteed fallback text, timeout/retry, concurrency cap.
+- **Live model hot-swap**: change a running port's model / system prompt / runtime params with no restart.
+- Built-in reverse-proxy gateway `/gw/<slug>/...` with optional API-key auth.
+
+**App templates (9)**
+- `generic_chat`, `scoring`, `translate`, `vision`, `summarize`, `custom`.
+- `embedding` — OpenAI-compatible `/v1/embeddings` for RAG.
+- `rerank` — Jina/Cohere-compatible `/v1/rerank`.
+- `passthrough` — transparent full OpenAI body passthrough (tools, JSON mode, seed, …).
+
+**Providers**
+- Native adapters: OpenAI-compatible, Ollama, Anthropic (Claude), Google Gemini.
+- 24 vendor presets across International / China (12 vendors) / Local / Custom groups.
+- Custom request headers; multimodal image & video input.
+
+**Load balancing**
+- Strategies: weighted-random, round-robin, least-connections, least-VRAM (by GPU usage).
+- Failure circuit breaker, pinned-GPU routing, cross-instance fallback.
+
+**Ops**
+- GPU/VRAM monitoring (NVML: util/temp/power/fan) with service↔GPU mapping.
+- Usage & cost stats (real tokens, per port/model/key, CSV export, per-key trend).
+- API key management (quota, usage, cost estimate).
+- Local-engine management: one-click connect Ollama/LM Studio; Ollama model list / streamed pull / delete.
+- Config backup & migration (export/import providers+routes+ports; secrets redacted by default).
+- Reverse-proxy config exporter (Nginx / Caddy).
+- Automatic DB column migration on startup.
+
+**PromptLab**
+- Reverse-infer a system prompt from input→output examples (text & images); test, save, apply to a port.
+
+**Platform**
+- RBAC user management (admin/user, self-lockout guards).
+- i18n (zh / en / ja), light/dark theme, hand-drawn *wafu* UI.
+- Single-process deployment (backend serves the built frontend); Docker image + Compose.
+- CI (pytest + frontend build + image build) and GHCR release workflow.
+
+[Unreleased]: https://github.com/mknjibhuvgyo2/portpilot-ai/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/mknjibhuvgyo2/portpilot-ai/releases/tag/v0.1.0

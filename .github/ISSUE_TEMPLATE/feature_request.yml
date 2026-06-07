@@ -1,0 +1,48 @@
+name: "✨ Feature request"
+description: "Suggest an idea / 提一个功能建议"
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: 感谢建议！较大的改动建议先在此讨论方向再动手。
+  - type: textarea
+    id: problem
+    attributes:
+      label: 要解决的问题 / Problem
+      description: 这个功能解决什么痛点？现状有什么不足？
+      placeholder: 我在做 X 时很麻烦，因为…
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: 期望的方案 / Proposed solution
+      placeholder: 希望能…
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 备选方案 / Alternatives considered
+  - type: dropdown
+    id: area
+    attributes:
+      label: 相关模块 / Area
+      options:
+        - 应用模板 (app template)
+        - 模型厂商 / provider
+        - 负载均衡 / 调度
+        - 网关 / 鉴权 / 用量
+        - 监控 / GPU
+        - PromptLab 提示词逆推
+        - 前端 UI / i18n
+        - 部署 / Docker / CI
+        - 其他 Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: 参与意愿 / Willing to contribute?
+      options:
+        - label: 我愿意提交 PR 实现它 / I'd like to submit a PR

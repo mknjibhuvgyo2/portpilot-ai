@@ -1,0 +1,27 @@
+# Keep the build context small & reproducible.
+.git
+.github
+.claude
+TASK_STATE.md
+
+# Python
+**/__pycache__/
+**/*.py[cod]
+backend/.venv/
+backend/.env
+.pytest_cache/
+
+# Node / frontend (rebuilt inside the image)
+frontend/node_modules/
+frontend/dist/
+
+# Runtime data & local artifacts
+data/
+*.db
+*.log
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
