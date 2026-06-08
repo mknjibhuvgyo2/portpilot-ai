@@ -2,9 +2,9 @@
 
 # PORTHUB · AI Port Hub
 
-**自托管的多端口 AI 服务管理平台** — 一台机器开多个端口，每个端口绑定一个应用模板（独立系统提示词 + 模型路由），供内网统一调用。
+**English** · [简体中文](README.zh-CN.md) · [日本語](README.ja.md)
 
-*A self-hosted platform to run many AI service endpoints (one per port), each bound to an app template with its own system prompt and model routing.*
+**A self-hosted platform to run many AI service endpoints — one per port —** each bound to an app template with its own system prompt and model routing, exposed to your LAN through one OpenAI-compatible gateway.
 
 [![CI](https://github.com/mknjibhuvgyo2/portpilot-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/mknjibhuvgyo2/portpilot-ai/actions/workflows/ci.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
@@ -13,92 +13,95 @@
 
 </div>
 
-
 ---
 
-## 📸 截图 / Screenshots
+## 📸 Screenshots
 
-| 监控总览 Dashboard | 端口编辑 Ports | 提示词逆推 PromptLab |
+| Dashboard | Ports | PromptLab |
 | --- | --- | --- |
 | ![dashboard](docs/dashboard.png) | ![ports](docs/ports.png) | ![promptlab](docs/promptlab.png) |
 
 ---
 
-## ✨ 功能 / Features
+## ✨ Features
 
-**核心 / Core**
-- **多端口服务编排**：注册端口服务 → 一键启动/停止 → 健康检查；每个服务以 OpenAI 兼容协议对外。
-- **统一模型层**：模型路由（别名）→ 主模型 + 回退链 + 兜底文本 + 超时重试 + 并发上限。
-- **模型热切换（hot-swap）**：运行中修改模型/提示词/运行参数**即时生效，无需重启**端口。
-- **反向代理网关**：`/gw/<slug>/...` 转发到对应端口，可选 API Key 鉴权。
+**Core**
+- **Multi-port orchestration** — register a port service, start/stop, health checks; each exposes an OpenAI-compatible endpoint.
+- **Unified model layer** — model routes (aliases) with a primary + fallback chain, guaranteed fallback text, timeout/retry, concurrency cap.
+- **Live model hot-swap** — change a running port's model / system prompt / runtime params with **no restart**.
+- **Reverse-proxy gateway** — `/gw/<slug>/...` forwards to the right port, with optional API-key auth.
 
-**应用模板 / App templates（9 种）**
-`generic_chat`（通用聊天/评分）· `scoring` · `translate` · `vision` · `summarize` · `embedding`（`/v1/embeddings`，RAG 向量化）· `rerank`（`/v1/rerank`，Jina/Cohere 兼容精排）· `passthrough`（透传完整 OpenAI 请求体：tools/JSON 模式/seed…）· `custom`。
+**App templates (9)**
+`generic_chat` · `scoring` · `translate` · `vision` · `summarize` · `embedding` (`/v1/embeddings`, RAG) · `rerank` (`/v1/rerank`, Jina/Cohere-compatible) · `passthrough` (transparent full OpenAI body: tools / JSON mode / seed …) · `custom`.
 
-**模型厂商 / Providers**
-- 原生适配：**OpenAI 兼容**、**Ollama**、**Anthropic（Claude）**、**Google Gemini**。
-- 厂商预设 24 项 4 组（填 key+model 即用）：国际（OpenAI/Anthropic/Gemini/Groq/OpenRouter/Mistral/xAI）、**中国（DeepSeek/通义千问/Kimi/智谱 GLM/豆包/混元/MiniMax/阶跃/零一/百川/讯飞星火/硅基流动）**、本地（Ollama/LM Studio/llama.cpp/vLLM）、自定义。
-- 自定义请求头、多模态（图片/视频）输入。
+**Providers**
+- Native adapters: **OpenAI-compatible**, **Ollama**, **Anthropic (Claude)**, **Google Gemini**.
+- 24 vendor presets in 4 groups (fill key + model): International (OpenAI/Anthropic/Gemini/Groq/OpenRouter/Mistral/xAI), **China (DeepSeek/Qwen/Kimi/Zhipu GLM/Doubao/Hunyuan/MiniMax/StepFun/01.AI/Baichuan/iFlytek/SiliconFlow)**, Local (Ollama/LM Studio/llama.cpp/vLLM), Custom.
+- Custom request headers; multimodal image & video input.
 
-**负载均衡 / Load balancing**
-- 多实例池策略：**加权随机 / 轮询 / 最少连接 / 最少显存（按 GPU 占用）**。
-- **失败自动熔断**（连续失败降级 15s）、**指定 GPU**（pin GPU）、跨实例回退。
+**Load balancing**
+- Pool strategies: **weighted-random / round-robin / least-connections / least-VRAM (by GPU usage)**.
+- **Failure circuit breaker**, **pinned-GPU routing**, cross-instance fallback.
 
-**运维 / Ops**
-- **GPU/显存监控**（NVML：占用/温度/功耗/风扇），监控总览展示「服务↔显卡」映射。
-- **用量/成本统计**：真实 token + 按端口/模型/Key 维度、CSV 导出、每 Key 趋势图。
-- **API Key 管理**：配额、用量、成本估算。
-- **本地引擎管理**：一键连接 Ollama/LM Studio，Ollama 模型列表/下载（流式进度）/删除。
-- **配置备份/迁移**：导出/导入全部 providers+routes+ports（密钥默认脱敏，跨实例可移植）。
-- **反代配置导出**：Nginx / Caddy 配置一键生成。
-- **数据库自动迁移**：模型加字段时旧库启动自动补列。
+**Ops**
+- **GPU/VRAM monitoring** (NVML: util/temp/power/fan) with a service↔GPU map on the dashboard.
+- **Usage & cost stats** — real tokens, per port/model/key, CSV export, per-key trend.
+- **API-key management** — quota, usage, cost estimate.
+- **Local engine management** — one-click connect Ollama/LM Studio; list / pull (streamed progress) / delete Ollama models.
+- **Config backup/migration** — export/import all providers + routes + ports (keys redacted by default, portable across instances).
+- **Reverse-proxy export** — generate Nginx / Caddy config.
+- **Auto DB migration** — older databases get new columns added on startup.
 
-**提示词逆推 / PromptLab**
-- 给「输入→输出」样例（支持图片），自动**逆推出系统提示词**；可勾选约束、测试复现、保存到提示词库、一键应用到端口。
+**PromptLab**
+- Give input→output examples (images supported) and **infer a system prompt**; pick constraints, test reproduction, save to the prompt library, one-click apply to a port.
 
-**平台 / Platform**
-- **RBAC 用户管理**（管理员/普通，防自锁守卫）。
-- **i18n 中 / 英 / 日**，**明暗主题**，和风（wafu）UI。
-- 单进程部署（后端托管前端静态包），**Docker** 一键启动。
-
----
-
-## 📦 下载 / Downloads
-
-三种获取方式：
-
-1. **预编译安装包**（无需 Python/Node）— 见 [Releases](https://github.com/mknjibhuvgyo2/portpilot-ai/releases)：
-   - Windows x64 — `porthub-<ver>-windows-x64.zip`（解压运行 `porthub.exe`）
-   - Linux x64 / arm64 — `.tar.gz` 或 `.deb`（`sudo dpkg -i porthub_<ver>_amd64.deb` 后运行 `porthub`）
-   - macOS x64 / arm64 — `PORTHUB-<ver>-macos-<arch>.zip`（解压得 `PORTHUB.app`）
-
-   运行后自动打开 `http://localhost:8000`；运行数据存在可执行文件旁的 `data/` 目录。
-   *（安装包由 GitHub Actions 在各平台原生 runner 上用 PyInstaller 构建，见 [`.github/workflows/package.yml`](.github/workflows/package.yml)；打 `vX.Y.Z` tag 自动产出并附到 Release。）*
-
-2. **Docker 镜像** — 发布到 GHCR（GitHub Packages）：`ghcr.io/mknjibhuvgyo2/portpilot-ai`（见下方 Docker 启动）。
-
-3. **源码运行** — 见「本地开发」。
-
-> macOS 首次打开未签名 `.app` 会被 Gatekeeper 拦：右键 → 打开，或 `xattr -dr com.apple.quarantine PORTHUB.app`。
+**Platform**
+- **RBAC user management** (admin/user, lockout guards).
+- **i18n EN / 中文 / 日本語**, light/dark theme, *wafu* (和風) UI.
+- Single-process deploy (backend serves the built frontend), **one-command Docker**.
 
 ---
 
-## 🚀 5 分钟 Docker 启动 / Quickstart
+## 📦 Downloads
 
-> 需要 Docker（含 Docker Compose）。
+1. **Prebuilt installers** (no Python/Node) — see [Releases](https://github.com/mknjibhuvgyo2/portpilot-ai/releases):
+   - Windows x64 — `porthub-<ver>-windows-x64.zip` (unzip, run `porthub.exe`)
+   - Linux x64 / arm64 — `.tar.gz` or `.deb` (`sudo dpkg -i porthub_<ver>_amd64.deb`, then `porthub`)
+   - macOS x64 / arm64 — `PORTHUB-<ver>-macos-<arch>.zip` (unzip to `PORTHUB.app`)
 
+   Opens `http://localhost:8000` automatically; runtime data lives in a `data/` folder next to the binary. If port 8000 is busy the launcher **auto-picks the next free port**.
+
+2. **Docker image** — published to GHCR: `ghcr.io/mknjibhuvgyo2/portpilot-ai` (see below).
+3. **From source** — see Local development.
+
+> macOS Gatekeeper blocks the unsigned `.app` on first open: right-click → Open, or `xattr -dr com.apple.quarantine PORTHUB.app`.
+
+---
+
+## 🚀 Quickstart with Docker
+
+> Requires Docker (with Compose).
+
+**Bash / macOS / Linux**
 ```bash
 git clone https://github.com/mknjibhuvgyo2/portpilot-ai.git porthub
 cd porthub
-
-# 用 compose（推荐）— 设置首启管理员密码
 HUB_ADMIN_PASSWORD=change-me docker compose up -d --build
 ```
 
-打开 **http://localhost:8000**，用 `admin` / 你设置的密码登录。
+**Windows PowerShell**
+```powershell
+git clone https://github.com/mknjibhuvgyo2/portpilot-ai.git porthub
+cd porthub
+$env:HUB_ADMIN_PASSWORD = "change-me"; docker compose up -d --build
+```
 
-不用 compose 也行：
+Open **http://localhost:8000** and log in as `admin` with the password you set.
 
+<details>
+<summary>Without Compose (plain <code>docker run</code>)</summary>
+
+**Bash** (use `\` to continue lines):
 ```bash
 docker build -t ai-port-hub .
 docker run -d -p 8000:8000 -v porthub-data:/app/data \
@@ -107,101 +110,120 @@ docker run -d -p 8000:8000 -v porthub-data:/app/data \
   ai-port-hub
 ```
 
-- 运行时数据（SQLite / 密钥 / 提示词库）持久化在卷 `/app/data`。
-- 访问宿主机本地引擎（Ollama `:11434` / LM Studio `:1234` / llama.cpp `:8085`）用 `host.docker.internal`。
-- 你在 UI 创建的**端口服务**会在容器内绑定各自端口：按需 `-p` 发布，或 Linux 上用 `--network host`（compose 文件含示例）。
-- 打 `vX.Y.Z` tag 时，GitHub Actions 自动构建并发布镜像到 GHCR（见 `.github/workflows/release.yml`）。
+**Windows PowerShell** (PowerShell uses backtick `` ` `` to continue lines — **not** `\`):
+```powershell
+docker build -t ai-port-hub .
+docker run -d -p 8000:8000 -v porthub-data:/app/data `
+  -e HUB_ADMIN_PASSWORD=change-me `
+  --add-host host.docker.internal:host-gateway `
+  ai-port-hub
+```
+
+Or as a single line (works in any shell):
+```text
+docker run -d -p 8000:8000 -v porthub-data:/app/data -e HUB_ADMIN_PASSWORD=change-me --add-host host.docker.internal:host-gateway ai-port-hub
+```
+</details>
+
+- Runtime data (SQLite / secret key / prompt library) persists in volume `/app/data`.
+- Reach host engines (Ollama `:11434` / LM Studio `:1234` / llama.cpp `:8085`) via `host.docker.internal`.
+- Port services you create bind their own ports inside the container: publish with `-p` as needed, or use `--network host` on Linux (the compose file has an example).
+- Pushing a `vX.Y.Z` tag builds & publishes the image to GHCR (`.github/workflows/release.yml`).
 
 ---
 
-## 🛠️ 本地开发 / Local development
+## 🛠️ Local development
 
-**要求**：Python 3.12+、Node 20+（推荐 22）。
+**Requirements**: Python 3.12+, Node 20+ (22 recommended).
 
 ```bash
-# 后端
+# backend
 cd backend
 python -m venv .venv
 # Windows: ./.venv/Scripts/python -m pip install -r requirements.txt
 # *nix:    ./.venv/bin/python   -m pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 
-# 前端（另开终端）
+# frontend (another terminal)
 cd frontend
 npm install
-npm run dev        # http://localhost:5173 （已代理 /api 与 /gw 到 :8000）
-npm run build      # 产物 dist/ 由后端在 :8000 直接托管（生产）
+npm run dev        # http://localhost:5173 (proxies /api and /gw to :8000)
+npm run build      # dist/ is served by the backend on :8000 (production)
 ```
 
-一键脚本：`./scripts/start.sh`（macOS/Linux）或 `./scripts/start.ps1`（Windows），`dev` 参数进开发模式。
+One-shot scripts: `./scripts/start.sh` (macOS/Linux) or `./scripts/start.ps1` (Windows); pass `dev` for dev mode. The first run prints the admin password (or set `HUB_ADMIN_PASSWORD` in `backend/.env`).
 
-首次启动控制台会打印管理员密码（或在 `backend/.env` 设 `HUB_ADMIN_PASSWORD`；参考 `backend/.env.example`）。
-
-**测试 / 构建**
-
+**Test / build**
 ```bash
-cd backend && pytest -q          # 后端单元测试（100+ 用例）
-cd frontend && npm run build     # 前端类型检查 + 构建
+cd backend && pytest -q          # backend unit tests
+cd frontend && npm run build     # type-check + build
 ```
 
 ---
 
-## 🔌 使用 / Usage
+## 🔌 Usage
 
-1. **模型与厂商** → 新增厂商/端点（选厂商预设或本地 Ollama）。
-2. 新增**模型路由**：主模型 + 回退链 + 负载均衡策略 + 兜底文本。
-3. **端口服务** → 新建：名称、slug、端口、应用类型、模型路由、系统提示词 → 启动。
-4. 内网客户端调用：
-   - 经网关（推荐，带鉴权+用量统计）：`POST http://<host>:8000/gw/<slug>/v1/chat/completions`
-   - 直连端口：`POST http://<host>:<port>/v1/chat/completions`
+1. **Models & Providers** → add a provider (vendor preset or local Ollama).
+2. Add a **Model Route**: primary model + fallback chain + load-balancing strategy + fallback text.
+3. **Ports** → New: name, slug, port, app type, model route, system prompt → Start.
+4. Call from the LAN:
+   - Via gateway (recommended — auth + usage stats): `POST http://<host>:8000/gw/<slug>/v1/chat/completions`
+   - Direct: `POST http://<host>:<port>/v1/chat/completions`
 
 ```bash
 curl http://<host>:8000/gw/<slug>/v1/chat/completions \
   -H "Authorization: Bearer <api-key>" -H "Content-Type: application/json" \
-  -d '{"model":"<route>","messages":[{"role":"user","content":"你好"}]}'
+  -d '{"model":"<route>","messages":[{"role":"user","content":"hello"}]}'
 ```
 
 ---
 
-## 🏗️ 架构 / Architecture
+## 🏗️ Architecture
 
 ```
-backend/   FastAPI + SQLAlchemy(SQLite) + httpx — API / 模型路由 / 端口编排 / 网关
-frontend/  Vue 3 + Vite + TS + Tailwind + Pinia — 管理 UI（中/英/日）
-data/      运行时：sqlite / 密钥 / 提示词库 / 日志（git 忽略）
+backend/   FastAPI + SQLAlchemy(SQLite) + httpx — API / model routing / port orchestration / gateway
+frontend/  Vue 3 + Vite + TS + Tailwind + Pinia — admin UI (EN / 中文 / 日本語)
+data/      runtime: sqlite / secret key / prompt library / logs (git-ignored)
 ```
 
-后端单进程即可托管前端静态包；生产部署一条 `uvicorn` 命令或一个 Docker 容器。
+The backend serves the built frontend in a single process — production is one `uvicorn` command or one Docker container.
 
 ---
 
-## 🔐 安全注意事项 / Security
+## 🔐 Security
 
-- **请务必修改默认管理员密码**：用 `HUB_ADMIN_PASSWORD` 设定；不设则首启随机生成并打印到控制台一次。
-- **JWT 密钥**：`HUB_SECRET_KEY` 留空时自动生成并存到 `data/secret.key`；多实例/重启保持登录请显式设置。
-- **不要提交** `backend/.env`、`data/`（含 `secret.key`、`hub.db`）— 已在 `.gitignore` 中。
-- **网关 vs 直连**：直连端口绕过网关，**不校验 API Key、不计用量**；需鉴权/计量请走 `/gw/<slug>/`。
-- **面向内网部署**：对公网暴露请置于反向代理（Nginx/Caddy，设置页可导出配置）+ TLS 之后，并启用端口的「网关需 API Key」。
-- 发现漏洞请按 [SECURITY.md](SECURITY.md) 私下报告，勿开公开 issue。
-
----
-
-## 🗺️ 路线图 / Roadmap
-
-- [ ] 更多应用模板（如音频/ASR、图像生成代理）
-- [ ] 更细的显存阈值/混合权重调度策略
-- [ ] 用量统计趋势图增强、Prometheus 指标导出
-- [ ] 现有独立脚本 → 应用模板迁移向导
-- [ ] 端到端测试 / Playwright
-
-欢迎在 Issues 提建议。已实现的能力见上方功能列表与 [CHANGELOG.md](CHANGELOG.md)。
+- **Change the default admin password** with `HUB_ADMIN_PASSWORD`; if unset, a random one is generated and printed to the console once.
+- **JWT secret**: `HUB_SECRET_KEY`; if empty it's generated and stored at `data/secret.key` — set it explicitly to keep sessions across restarts/instances.
+- **Never commit** `backend/.env` or `data/` (contains `secret.key`, `hub.db`) — already in `.gitignore`.
+- **Gateway vs direct**: direct ports bypass the gateway — **no API-key check, not counted toward usage**; use `/gw/<slug>/` for auth/metering.
+- **LAN-oriented**: to expose publicly, put it behind a reverse proxy (Nginx/Caddy — exportable from Settings) + TLS, and enable "gateway requires API key".
+- Report vulnerabilities privately per [SECURITY.md](SECURITY.md).
 
 ---
 
-## 🤝 贡献 / Contributing
+## 💛 Sponsor
 
-欢迎 PR！请先读 [CONTRIBUTING.md](CONTRIBUTING.md)（开发流程、测试要求、提交规范）与 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)。
-Bug / 功能请用 [Issue 模板](.github/ISSUE_TEMPLATE)。
+**I'm broke — please give me money. 🙏**
+
+WeChat tip code:
+
+<img src="docs/sponsor-wechat.jpg" alt="WeChat tip code" width="240">
+
+---
+
+## 🗺️ Roadmap
+
+- [ ] More app templates (audio/ASR, image-generation proxy)
+- [ ] Finer VRAM-threshold / mixed-weight scheduling
+- [ ] Usage-trend charts, Prometheus metrics export
+- [ ] Wizard to migrate standalone scripts into app templates
+- [ ] End-to-end tests / Playwright
+
+Suggestions welcome in Issues. Shipped capabilities: see Features above and [CHANGELOG.md](CHANGELOG.md).
+
+## 🤝 Contributing
+
+PRs welcome! Read [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) first. Use the [issue templates](.github/ISSUE_TEMPLATE).
 
 ## 📄 License
 
