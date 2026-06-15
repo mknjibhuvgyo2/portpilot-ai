@@ -6,6 +6,14 @@ import re
 from pydantic import BaseModel, Field, field_validator
 
 
+class TaskItem(BaseModel):
+    """One stage of a port's task flow: an independent model call with its own
+    alias and optional prompt. Pipeline stages are consumed in order."""
+    name: str = ""
+    alias: str = ""
+    prompt: str = ""
+
+
 class PortCreate(BaseModel):
     name: str
     slug: str
@@ -13,6 +21,8 @@ class PortCreate(BaseModel):
     app_type: str = "generic_chat"
     model_alias: str = ""
     system_prompt: str = ""
+    # Task flow: ordered, independent tasks. tasks[0] mirrors model_alias/system_prompt.
+    tasks: list[TaskItem] | None = None
     streaming: bool = True
     concurrency: int = Field(default=8, ge=1, le=256)
     timeout: float = Field(default=120.0, gt=0)
@@ -42,6 +52,7 @@ class PortUpdate(BaseModel):
     log_keep: int | None = Field(default=None, ge=0, le=1000)
     auth_required: bool | None = None
     autostart: bool | None = None
+    tasks: list[TaskItem] | None = None
 
 
 class PortOut(BaseModel):
@@ -61,6 +72,7 @@ class PortOut(BaseModel):
     auth_required: bool
     autostart: bool
     status: str
+    extra: dict = {}
 
     class Config:
         from_attributes = True

@@ -40,7 +40,12 @@ export const ja = {
     title: 'ポートサービス', newService: '新規サービス', name: '名称', port: 'ポート', path: 'パス',
     modelAlias: 'モデル別名', status: '状態', actions: '操作', noServices: 'サービスなし',
     createTitle: '新規ポートサービス', editTitle: 'ポートサービスの編集',
-    tabs: { basic: '基本', model: 'モデル', prompt: 'プロンプト', runtime: '実行設定', gateway: 'ゲートウェイ' },
+    tabs: { basic: '基本', model: 'タスクフロー', prompt: 'プロンプト', runtime: '実行設定', gateway: 'ゲートウェイ' },
+    taskflow: {
+      title: 'タスクフロー', hint: '1回の呼び出しでこれらのタスクを順に実行。各タスクは独立してモデルを選び、前の出力が次の入力になります。テンプレートはタスク順にモデルを使用（例：説明→選定、採点→レポート）。',
+      add: '+ タスク追加', remove: '削除', taskName: 'タスク名', model: 'モデル', prompt: 'タスク用プロンプト（任意）',
+      taskNamePh: '例：説明 / 選定 / 採点 / レポート', stage: 'タスク',
+    },
     slug: 'slug（パス）', appType: 'アプリ種別', selectAlias: '（選択）', newAliasInline: 'モデルルート新規作成…',
     concurrency: '同時実行上限', timeout: 'タイムアウト(秒)', retries: 'リトライ回数', logKeep: 'ログ保持件数',
     systemPrompt: 'システムプロンプト', streaming: 'ストリーミング', enableLog: 'ログ有効',

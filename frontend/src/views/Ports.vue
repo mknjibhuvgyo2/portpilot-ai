@@ -39,9 +39,11 @@ const tabs = [
 ] as const
 
 const blank = () => ({
-  name: '', slug: '', port: 9001, app_type: 'generic_chat', model_alias: '',
-  system_prompt: '', streaming: true, concurrency: 8, timeout: 120,
+  name: '', slug: '', port: 9001, app_type: 'generic_chat',
+  streaming: true, concurrency: 8, timeout: 120,
   max_retries: 2, logging_enabled: true, log_keep: 10, auth_required: false, autostart: false,
+  // Task flow: ordered, independent tasks. tasks[0] is the main/first stage.
+  tasks: [{ name: '', alias: '', prompt: '' }] as Array<{ name: string; alias: string; prompt: string }>,
 })
 const form = ref(blank())
 
@@ -61,30 +63,39 @@ onMounted(async () => {
 })
 
 function onAppTypeChange() {
-  // prefill the template's suggested system prompt if the user hasn't typed one
+  // prefill the template's suggested prompt onto the first task if empty
   const tpl = templates.value.find((t) => t.app_type === form.value.app_type)
-  if (tpl && tpl.default_prompt && !form.value.system_prompt) form.value.system_prompt = tpl.default_prompt
+  if (tpl && tpl.default_prompt && !form.value.tasks[0].prompt) form.value.tasks[0].prompt = tpl.default_prompt
 }
-function onAliasSelect() {
+function addTask() { form.value.tasks.push({ name: '', alias: '', prompt: '' }) }
+function removeTask(i: number) { if (form.value.tasks.length > 1) form.value.tasks.splice(i, 1) }
+function onTaskAlias(i: number) {
   // bottom "+ new route" option jumps to the route editor (opens create modal)
-  if (form.value.model_alias === '__new__') {
-    form.value.model_alias = ''
+  if (form.value.tasks[i].alias === '__new__') {
+    form.value.tasks[i].alias = ''
     router.push('/models?new=alias')
   }
 }
 
 function openCreate() { editingId.value = null; form.value = blank(); tab.value = 'basic'; err.value = ''; showForm.value = true }
-function openEdit(p: any) { editingId.value = p.id; form.value = { ...blank(), ...p }; tab.value = 'basic'; err.value = ''; showForm.value = true }
+function openEdit(p: any) {
+  editingId.value = p.id
+  const tasks = (p.extra && Array.isArray(p.extra.tasks) && p.extra.tasks.length)
+    ? p.extra.tasks.map((tk: any) => ({ name: tk.name || '', alias: tk.alias || '', prompt: tk.prompt || '' }))
+    : [{ name: '', alias: p.model_alias || '', prompt: p.system_prompt || '' }]
+  form.value = { ...blank(), ...p, tasks }
+  tab.value = 'basic'; err.value = ''; showForm.value = true
+}
 function closeForm() { showForm.value = false; if (route.query.edit) router.replace({ path: '/ports' }) }
 
 async function save() {
   err.value = ''
   try {
     if (editingId.value) {
-      const { name, model_alias, system_prompt, streaming, concurrency, timeout,
+      const { name, tasks, streaming, concurrency, timeout,
         max_retries, logging_enabled, log_keep, auth_required, autostart } = form.value
       const { data } = await api.patch(`/api/ports/${editingId.value}`, {
-        name, model_alias, system_prompt, streaming, concurrency, timeout,
+        name, tasks, streaming, concurrency, timeout,
         max_retries, logging_enabled, log_keep, auth_required, autostart,
       })
       if (data?.hot_swapped) showToast(t('ports.hotSwapped'))
@@ -117,7 +128,7 @@ function onPromptFile(e: Event) {
         else if (j && typeof j === 'object') text = j.system_prompt ?? j.content ?? j.prompt ?? j.text ?? text
       } catch { /* keep raw */ }
     }
-    form.value.system_prompt = text
+    form.value.tasks[0].prompt = text
   }
   r.readAsText(f)
   ;(e.target as HTMLInputElement).value = ''
@@ -130,19 +141,19 @@ function download(filename: string, content: string) {
   a.click()
   URL.revokeObjectURL(a.href)
 }
-function exportTxt() { download(`${form.value.slug || 'prompt'}.txt`, form.value.system_prompt) }
-function exportJson() { download(`${form.value.slug || 'prompt'}.json`, JSON.stringify({ system_prompt: form.value.system_prompt }, null, 2)) }
+function exportTxt() { download(`${form.value.slug || 'prompt'}.txt`, form.value.tasks[0].prompt) }
+function exportJson() { download(`${form.value.slug || 'prompt'}.json`, JSON.stringify({ system_prompt: form.value.tasks[0].prompt }, null, 2)) }
 
 async function loadFromLibrary() {
   if (!selectedPromptFile.value) return
   const { data } = await api.get(`/api/prompts/${encodeURIComponent(selectedPromptFile.value)}`)
-  form.value.system_prompt = data.content
+  form.value.tasks[0].prompt = data.content
 }
 async function saveToLibrary() {
   const name = prompt(t('ports.saveAsName'), form.value.slug || 'prompt')
   if (!name) return
   const fmt = name.toLowerCase().endsWith('.json') ? 'json' : 'txt'
-  await api.post('/api/prompts', { name, content: form.value.system_prompt, format: fmt })
+  await api.post('/api/prompts', { name, content: form.value.tasks[0].prompt, format: fmt })
   promptFiles.value = (await api.get('/api/prompts')).data
   saveMsg.value = t('ports.saved'); setTimeout(() => (saveMsg.value = ''), 2000)
 }
@@ -229,17 +240,29 @@ async function saveToLibrary() {
             </div>
           </div>
 
-          <!-- model -->
+          <!-- task flow -->
           <div v-show="tab === 'model'" class="space-y-3">
-            <div>
-              <label class="label">{{ t('ports.modelAlias') }}</label>
-              <select v-model="form.model_alias" class="input" @change="onAliasSelect">
+            <p class="flex items-start gap-1.5 text-xs leading-relaxed text-steel-400">
+              <WaIcon name="info" :size="14" class="mt-0.5 shrink-0" />{{ t('ports.taskflow.hint') }}
+            </p>
+            <div v-for="(tk, i) in form.tasks" :key="i"
+              class="space-y-2 rounded-lg border border-steel-200/70 p-3 dark:border-steel-800">
+              <div class="flex items-center gap-2">
+                <span class="chip shrink-0 bg-accent-500/12 text-accent-600 dark:text-accent-300">{{ t('ports.taskflow.stage') }} {{ i + 1 }}</span>
+                <input v-model="tk.name" class="input !py-1.5 text-xs" :placeholder="t('ports.taskflow.taskNamePh')" />
+                <button v-if="form.tasks.length > 1" class="btn-ghost !px-2 text-aka-500" @click="removeTask(i)">
+                  <WaIcon name="trash" :size="14" />
+                </button>
+              </div>
+              <select v-model="tk.alias" class="input" @change="onTaskAlias(i)">
                 <option value="">{{ t('ports.selectAlias') }}</option>
                 <option v-for="a in aliases" :key="a.id" :value="a.alias">{{ a.alias }}</option>
                 <option value="__new__">＋ {{ t('ports.newAliasInline') }}</option>
               </select>
+              <textarea v-model="tk.prompt" rows="2" class="input font-mono text-[11px] leading-relaxed"
+                :placeholder="t('ports.taskflow.prompt')"></textarea>
             </div>
-            <p class="text-xs text-steel-400">{{ t('models.noAliases') }}</p>
+            <button class="btn-ghost" @click="addTask"><WaIcon name="plus" :size="14" />{{ t('ports.taskflow.add') }}</button>
           </div>
 
           <!-- prompt -->
@@ -260,7 +283,7 @@ async function saveToLibrary() {
                 <button class="btn-ghost" @click="saveToLibrary"><WaIcon name="save" :size="14" />{{ t('ports.saveAs') }}</button>
               </div>
             </div>
-            <textarea v-model="form.system_prompt" rows="12" class="input font-mono text-xs leading-relaxed"
+            <textarea v-model="form.tasks[0].prompt" rows="12" class="input font-mono text-xs leading-relaxed"
               :placeholder="t('ports.systemPrompt')"></textarea>
             <p v-if="saveMsg" class="text-xs text-matcha-600">{{ saveMsg }}</p>
           </div>

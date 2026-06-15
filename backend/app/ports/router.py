@@ -32,13 +32,30 @@ def list_ports(db: Session = Depends(get_db), _: object = Depends(get_current_us
     return [_serialize(p) for p in db.query(PortService).order_by(PortService.id).all()]
 
 
+def _apply_tasks(data: dict) -> dict:
+    """Normalize the task flow: stash the full list in extra['tasks'] and keep
+    model_alias/system_prompt in sync with tasks[0] (back-compat for the gateway
+    and single-stage templates). Returns kwargs safe for the PortService model."""
+    tasks = data.pop("tasks", None)
+    if tasks:
+        first = tasks[0]
+        if first.get("alias"):
+            data["model_alias"] = first["alias"]
+        if first.get("prompt"):
+            data["system_prompt"] = first["prompt"]
+        extra = dict(data.get("extra") or {})
+        extra["tasks"] = tasks
+        data["extra"] = extra
+    return data
+
+
 @router.post("", response_model=PortOut)
 def create_port(body: PortCreate, db: Session = Depends(get_db), _: object = Depends(require_admin)):
     if db.query(PortService).filter(PortService.slug == body.slug).first():
         raise HTTPException(409, "slug already exists")
     if db.query(PortService).filter(PortService.port == body.port).first():
         raise HTTPException(409, "port already in use")
-    p = PortService(**body.model_dump())
+    p = PortService(**_apply_tasks(body.model_dump()))
     db.add(p)
     db.commit()
     db.refresh(p)
@@ -52,6 +69,9 @@ def update_port(port_id: int, body: PortUpdate, db: Session = Depends(get_db),
     if not p:
         raise HTTPException(404, "not found")
     changed = body.model_dump(exclude_unset=True)
+    if "tasks" in changed:
+        changed.setdefault("extra", dict(p.extra or {}))
+        changed = _apply_tasks(changed)
     for k, v in changed.items():
         setattr(p, k, v)
     db.commit()

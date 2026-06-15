@@ -40,7 +40,12 @@ export const en = {
     title: 'Ports', newService: 'New service', name: 'Name', port: 'Port', path: 'Path',
     modelAlias: 'Model alias', status: 'Status', actions: 'Actions', noServices: 'No services',
     createTitle: 'New port service', editTitle: 'Edit port service',
-    tabs: { basic: 'Basic', model: 'Model', prompt: 'Prompt', runtime: 'Runtime', gateway: 'Gateway' },
+    tabs: { basic: 'Basic', model: 'Task Flow', prompt: 'Prompt', runtime: 'Runtime', gateway: 'Gateway' },
+    taskflow: {
+      title: 'Task Flow', hint: 'A single call runs these tasks in order; each task picks its own model, and each step’s output feeds the next. Templates consume tasks by index (e.g. describe→select, score→report).',
+      add: '+ Add task', remove: 'Remove', taskName: 'Task name', model: 'Model', prompt: 'Task prompt (optional)',
+      taskNamePh: 'e.g. describe / select / score / report', stage: 'Task',
+    },
     slug: 'slug (path)', appType: 'App type', selectAlias: '(select)', newAliasInline: 'New model route…',
     concurrency: 'Max concurrency', timeout: 'Timeout (s)', retries: 'Retries', logKeep: 'Logs to keep',
     systemPrompt: 'System prompt', streaming: 'Streaming', enableLog: 'Logging',

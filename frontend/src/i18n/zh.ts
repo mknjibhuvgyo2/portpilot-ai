@@ -39,7 +39,12 @@ export const zh = {
     title: '端口服务', newService: '新建服务', name: '名称', port: '端口', path: '路径',
     modelAlias: '模型别名', status: '状态', actions: '操作', noServices: '暂无服务',
     createTitle: '新建端口服务', editTitle: '编辑端口服务',
-    tabs: { basic: '基本', model: '模型', prompt: '提示词', runtime: '运行参数', gateway: '网关' },
+    tabs: { basic: '基本', model: '任务流', prompt: '提示词', runtime: '运行参数', gateway: '网关' },
+    taskflow: {
+      title: '任务流', hint: '一次调用按顺序执行这些任务，每个任务独立选用模型；上一步输出作为下一步输入。模板按任务序号取各阶段模型（如：看图→筛选、打分→报告）。',
+      add: '+ 添加任务', remove: '删除', taskName: '任务名', model: '模型', prompt: '该任务提示词（可选）',
+      taskNamePh: '如：看图 / 筛选 / 打分 / 报告', stage: '任务',
+    },
     slug: 'slug（路径）', appType: '应用类型', selectAlias: '（选择）', newAliasInline: '新建模型路由…',
     concurrency: '并发上限', timeout: '超时(秒)', retries: '重试次数', logKeep: '日志保留条数',
     systemPrompt: '系统提示词', streaming: '流式输出', enableLog: '开启日志',
