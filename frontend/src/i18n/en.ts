@@ -8,7 +8,12 @@ export const en = {
   },
   nav: {
     dashboard: 'Dashboard', ports: 'Ports', models: 'Models', promptlab: 'PromptLab',
-    keys: 'API Keys', chat: 'Playground', users: 'Users', settings: 'Settings',
+    keys: 'API Keys', chat: 'Playground', users: 'Users', settings: 'Settings', taskflows: 'Task Flows',
+  },
+  taskflows: {
+    title: 'Task Flows', subtitle: 'The task pipeline of every port: run in order, each task picks its own model, each step feeds the next.',
+    stage: 'Task', model: 'Model', edit: 'Edit', empty: 'No port services yet.', noModel: 'no model',
+    single: 'single task', steps: 'tasks',
   },
   users: {
     title: 'User management', newUser: '+ New user', username: 'Username', password: 'Password',

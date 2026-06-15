@@ -4,7 +4,7 @@ from __future__ import annotations
 from app.apps.base import AppTemplate
 from app.apps.embedding import EmbeddingTemplate
 from app.apps.eval_matcher import MatcherEvalTemplate
-from app.apps.eval_platform import PlatformEvalTemplate
+from app.apps.eval_platform import AnalyzeEvalTemplate, ChatEvalTemplate
 from app.apps.eval_questionnaire import QuestionnaireEvalTemplate
 from app.apps.eval_scoring import ScoringEvalTemplate
 from app.apps.eval_visual import VisualEvalTemplate
@@ -49,6 +49,7 @@ register(PassthroughTemplate())
 register(CustomTemplate())
 register(ScoringEvalTemplate())
 register(MatcherEvalTemplate())
-register(PlatformEvalTemplate())
+register(AnalyzeEvalTemplate())
+register(ChatEvalTemplate())
 register(VisualEvalTemplate())
 register(QuestionnaireEvalTemplate())

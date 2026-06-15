@@ -8,7 +8,12 @@ export const ja = {
   },
   nav: {
     dashboard: 'ダッシュボード', ports: 'ポートサービス', models: 'モデル / プロバイダ', promptlab: 'プロンプト逆生成',
-    keys: 'API キー', chat: 'プレイグラウンド', users: 'ユーザー管理', settings: '設定',
+    keys: 'API キー', chat: 'プレイグラウンド', users: 'ユーザー管理', settings: '設定', taskflows: 'タスクフロー',
+  },
+  taskflows: {
+    title: 'タスクフロー', subtitle: '各ポートのタスクパイプライン一覧：順に実行、各タスクは独立してモデルを選び、前の出力が次へ渡されます。',
+    stage: 'タスク', model: 'モデル', edit: '編集', empty: 'ポートサービスがまだありません。', noModel: 'モデル未設定',
+    single: '単一タスク', steps: 'タスク',
   },
   users: {
     title: 'ユーザー管理', newUser: '+ 新規ユーザー', username: 'ユーザー名', password: 'パスワード',

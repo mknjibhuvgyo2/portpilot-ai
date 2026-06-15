@@ -242,9 +242,7 @@ async function saveToLibrary() {
 
           <!-- task flow -->
           <div v-show="tab === 'model'" class="space-y-3">
-            <p class="flex items-start gap-1.5 text-xs leading-relaxed text-steel-400">
-              <WaIcon name="info" :size="14" class="mt-0.5 shrink-0" />{{ t('ports.taskflow.hint') }}
-            </p>
+            <p class="text-xs leading-relaxed text-steel-400">{{ t('ports.taskflow.hint') }}</p>
             <div v-for="(tk, i) in form.tasks" :key="i"
               class="space-y-2 rounded-lg border border-steel-200/70 p-3 dark:border-steel-800">
               <div class="flex items-center gap-2">

@@ -8,7 +8,12 @@ export const zh = {
   },
   nav: {
     dashboard: '监控总览', ports: '端口服务', models: '模型与厂商', promptlab: '提示词逆推',
-    keys: 'API 密钥', chat: '试验场', users: '用户管理', settings: '设置',
+    keys: 'API 密钥', chat: '试验场', users: '用户管理', settings: '设置', taskflows: '任务流',
+  },
+  taskflows: {
+    title: '任务流', subtitle: '每个端口的任务流水线一览：按顺序执行，每个任务独立选模型，上一步输出喂给下一步。',
+    stage: '任务', model: '模型', edit: '编辑', empty: '还没有端口服务。', noModel: '未设模型',
+    single: '单任务', steps: '个任务',
   },
   users: {
     title: '用户管理', newUser: '+ 新建用户', username: '用户名', password: '密码',
