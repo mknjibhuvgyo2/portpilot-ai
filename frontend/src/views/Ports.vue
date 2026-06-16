@@ -76,6 +76,14 @@ function onTaskAlias(i: number) {
     router.push('/models?new=alias')
   }
 }
+// model pool editing: add/remove allowed model names (free text + alias suggestions)
+const poolDraft = ref<Record<number, string>>({})
+function addPoolVal(i: number, val: string) {
+  val = (val || '').trim()
+  if (val && !form.value.tasks[i].pool.includes(val)) form.value.tasks[i].pool.push(val)
+}
+function addPool(i: number) { addPoolVal(i, poolDraft.value[i] || ''); poolDraft.value[i] = '' }
+function aliasesNotIn(pool: string[]) { return aliases.value.filter((a: any) => !pool.includes(a.alias)) }
 
 function openCreate() { editingId.value = null; form.value = blank(); tab.value = 'basic'; err.value = ''; showForm.value = true }
 function openEdit(p: any) {
@@ -264,13 +272,24 @@ async function saveToLibrary() {
                   <option value="__new__">＋ {{ t('ports.newAliasInline') }}</option>
                 </select>
               </div>
-              <div v-if="tk.mode === 'pool'" class="space-y-1 rounded-md border border-accent-500/30 bg-accent-500/5 p-2">
+              <div v-if="tk.mode === 'pool'" class="space-y-2 rounded-md border border-accent-500/30 bg-accent-500/5 p-2">
                 <p class="text-[11px] leading-relaxed text-steel-500 dark:text-steel-400">{{ t('ports.taskflow.poolHint') }}</p>
-                <div class="flex flex-wrap gap-x-3 gap-y-1">
-                  <label v-for="a in aliases" :key="a.id" class="flex items-center gap-1 text-[11px]">
-                    <input type="checkbox" :value="a.alias" v-model="tk.pool" class="accent-accent-600" />{{ a.alias }}
-                  </label>
-                  <span v-if="!aliases.length" class="text-[11px] text-steel-400">{{ t('ports.taskflow.poolAny') }}</span>
+                <div v-if="tk.pool.length" class="flex flex-wrap gap-1">
+                  <span v-for="(m, mi) in tk.pool" :key="mi"
+                    class="chip gap-1 bg-accent-500/15 text-accent-700 dark:text-accent-300">
+                    {{ m }}<button class="opacity-60 hover:opacity-100" @click="tk.pool.splice(mi, 1)">✕</button>
+                  </span>
+                </div>
+                <span v-else class="block text-[11px] text-steel-400">{{ t('ports.taskflow.poolAny') }}</span>
+                <div class="flex gap-1">
+                  <input v-model="poolDraft[i]" class="input !py-1.5 text-xs" :placeholder="t('ports.taskflow.poolAddPh')"
+                    @keyup.enter.prevent="addPool(i)" />
+                  <button class="btn-ghost shrink-0" @click="addPool(i)"><WaIcon name="plus" :size="13" />{{ t('ports.taskflow.poolAdd') }}</button>
+                </div>
+                <div v-if="aliasesNotIn(tk.pool).length" class="flex flex-wrap gap-1">
+                  <button v-for="a in aliasesNotIn(tk.pool)" :key="a.id"
+                    class="chip bg-steel-500/10 text-steel-500 hover:bg-accent-500/15 hover:text-accent-600"
+                    @click="addPoolVal(i, a.alias)">+ {{ a.alias }}</button>
                 </div>
               </div>
               <textarea v-model="tk.prompt" rows="2" class="input font-mono text-[11px] leading-relaxed"
