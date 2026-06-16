@@ -30,6 +30,17 @@ services:
     #     llama.cpp :8085), reach them via host.docker.internal: ---
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    # --- GPU/VRAM monitoring (NVML): uncomment to expose host NVIDIA GPUs to the
+    #     container. Requires the NVIDIA Container Toolkit (Windows: Docker Desktop
+    #     + WSL2 GPU). Equivalent to `docker run --gpus all`. Without this the
+    #     dashboard shows "no GPU detected".
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
 
   # --- Alternative: host networking (Linux) so all hub-opened ports are on the
   #     host directly and host-local engines are reachable on 127.0.0.1. Swap the

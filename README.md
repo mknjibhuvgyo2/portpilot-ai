@@ -127,6 +127,7 @@ docker run -d -p 8000:8000 -v porthub-data:/app/data -e HUB_ADMIN_PASSWORD=chang
 
 - Runtime data (SQLite / secret key / prompt library) persists in volume `/app/data`.
 - Reach host engines (Ollama `:11434` / LM Studio `:1234` / llama.cpp `:8085`) via `host.docker.internal`.
+- **GPU/VRAM monitoring**: add `--gpus all` to `docker run` (or the GPU block in the compose file) so NVML inside the container can see the host GPUs — requires the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) (on Windows: Docker Desktop + WSL2 GPU). Without it the dashboard shows "no GPU detected". Re-add the flag every time you recreate the container.
 - Port services you create bind their own ports inside the container: publish with `-p` as needed, or use `--network host` on Linux (the compose file has an example).
 - Pushing a `vX.Y.Z` tag builds & publishes the image to GHCR (`.github/workflows/release.yml`).
 

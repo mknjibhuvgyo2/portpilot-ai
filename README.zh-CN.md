@@ -127,6 +127,7 @@ docker run -d -p 8000:8000 -v porthub-data:/app/data -e HUB_ADMIN_PASSWORD=chang
 
 - 运行时数据（SQLite / 密钥 / 提示词库）持久化在卷 `/app/data`。
 - 访问宿主机本地引擎（Ollama `:11434` / LM Studio `:1234` / llama.cpp `:8085`）用 `host.docker.internal`。
+- **GPU/显存监控**：在 `docker run`（或 compose 文件里的 GPU 配置块）加 `--gpus all`，容器内的 NVML 才能看到宿主机显卡——需安装 [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)（Windows 用 Docker Desktop + WSL2 GPU）。不加则监控总览显示“未检测到 GPU”。**每次重建容器都要重新加这个参数。**
 - 你在 UI 创建的**端口服务**会在容器内绑定各自端口：按需 `-p` 发布，或 Linux 上用 `--network host`（compose 文件含示例）。
 - 打 `vX.Y.Z` tag 时，GitHub Actions 自动构建并发布镜像到 GHCR（`.github/workflows/release.yml`）。
 

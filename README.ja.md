@@ -127,6 +127,7 @@ docker run -d -p 8000:8000 -v porthub-data:/app/data -e HUB_ADMIN_PASSWORD=chang
 
 - 実行データ（SQLite / シークレットキー / プロンプトライブラリ）はボリューム `/app/data` に永続化。
 - ホストのローカルエンジン（Ollama `:11434` / LM Studio `:1234` / llama.cpp `:8085`）へは `host.docker.internal` でアクセス。
+- **GPU/VRAM モニタリング**：`docker run`（または compose の GPU 設定ブロック）に `--gpus all` を付けると、コンテナ内の NVML がホスト GPU を認識します（[NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) が必要。Windows は Docker Desktop + WSL2 GPU）。付けない場合はダッシュボードに「GPU 未検出」と表示されます。**コンテナを再作成するたびにこのフラグを付け直してください。**
 - UI で作成した**ポートサービス**はコンテナ内で各自のポートにバインドします：必要に応じて `-p` で公開、または Linux では `--network host`（compose に例あり）。
 - `vX.Y.Z` タグを push すると GitHub Actions がイメージをビルドし GHCR に公開（`.github/workflows/release.yml`）。
 
