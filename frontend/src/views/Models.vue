@@ -332,7 +332,7 @@ const provName = computed(() => (id: number) => providers.value.find((p) => p.id
             <select v-model.number="tg.provider_id" class="input flex-1"><option v-for="p in providers" :key="p.id" :value="p.id">{{ p.name }}</option></select>
             <input v-model="tg.model" class="input flex-1" :placeholder="t('models.modelName')" />
             <input v-model="tg.lb_group" class="input w-24" :placeholder="t('models.lbGroup')" :title="t('models.lbHint')" />
-            <button class="btn-ghost !px-2" :disabled="aliasForm.targets.length <= 1" @click="rmTarget(i)">−</button>
+            <button class="btn-ghost !px-2" :disabled="aliasForm.targets.length <= 1" @click="rmTarget(Number(i))">−</button>
           </div>
           <button class="btn-ghost" @click="addTarget"><WaIcon name="plus" :size="14" />{{ t('models.addFallback') }}</button>
           <p class="mt-2 text-xs text-steel-400">{{ t('models.lbHint') }}</p>

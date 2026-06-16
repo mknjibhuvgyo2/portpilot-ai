@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.js";
 
 :root { color-scheme: light dark; }
 html, body, #app { height: 100%; margin: 0; }
@@ -60,23 +59,26 @@ body {
 }
 
 @layer components {
-  .btn {
+  .btn,
+  .btn-primary,
+  .btn-ghost,
+  .btn-danger {
     @apply inline-flex items-center justify-center gap-1.5 rounded-md border px-3 py-1.5
       text-xs font-medium tracking-wide transition-all focus:outline-none
       disabled:opacity-40 disabled:pointer-events-none;
   }
   .btn-primary {
-    @apply btn border-ai-800/40 bg-accent-grad text-steel-50 shadow-glow-sm
+    @apply border-ai-800/40 bg-accent-grad text-steel-50 shadow-glow-sm
       hover:brightness-110 active:brightness-95;
   }
   .btn-ghost {
-    @apply btn border-steel-300/70 bg-steel-50/70 text-steel-700 backdrop-blur
+    @apply border-steel-300/70 bg-steel-50/70 text-steel-700 backdrop-blur
       hover:border-kin-400 hover:bg-steel-50 hover:text-steel-900
       dark:border-steel-700 dark:bg-steel-800/40 dark:text-steel-200
       dark:hover:border-kin-500 dark:hover:bg-steel-800;
   }
   .btn-danger {
-    @apply btn border-aka-500/30 bg-aka-500/5 text-aka-600 hover:bg-aka-500/10
+    @apply border-aka-500/30 bg-aka-500/5 text-aka-600 hover:bg-aka-500/10
       dark:text-aka-400;
   }
   .card {

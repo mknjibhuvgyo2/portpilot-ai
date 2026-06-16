@@ -59,10 +59,10 @@ function edit(p: any) { router.push({ path: '/ports', query: { edit: p.id } }) }
         <!-- pipeline -->
         <div class="flex flex-wrap items-stretch gap-2">
           <template v-for="(tk, i) in p.tasks" :key="i">
-            <span v-if="i > 0" class="self-center shrink-0 text-base text-steel-300 dark:text-steel-600">→</span>
+            <span v-if="Number(i) > 0" class="self-center shrink-0 text-base text-steel-300 dark:text-steel-600">→</span>
             <div class="flex min-w-[140px] flex-col gap-1 rounded-lg border border-steel-200/70 bg-steel-50/50 p-2.5 dark:border-steel-800 dark:bg-steel-800/30">
               <div class="flex items-center gap-1.5">
-                <span class="chip bg-accent-500/12 text-accent-600 dark:text-accent-300">{{ t('taskflows.stage') }} {{ i + 1 }}</span>
+                <span class="chip bg-accent-500/12 text-accent-600 dark:text-accent-300">{{ t('taskflows.stage') }} {{ Number(i) + 1 }}</span>
                 <span class="truncate text-xs font-medium text-steel-600 dark:text-steel-300">{{ tk.name || '—' }}</span>
                 <span class="chip ml-auto" :class="tk.mode === 'pool' ? 'bg-kin-400/15 text-kin-600 dark:text-kin-400' : 'bg-steel-500/10 text-steel-400'">
                   {{ tk.mode === 'pool' ? t('ports.taskflow.pool') : t('ports.taskflow.fixed') }}
