@@ -11,6 +11,7 @@ const routes = [
       { path: 'dashboard', component: () => import('../views/Dashboard.vue') },
       { path: 'ports', component: () => import('../views/Ports.vue') },
       { path: 'taskflows', component: () => import('../views/TaskFlows.vue') },
+      { path: 'importer', component: () => import('../views/ImportWizard.vue') },
       { path: 'models', component: () => import('../views/Models.vue') },
       { path: 'promptlab', component: () => import('../views/PromptLab.vue') },
       { path: 'keys', component: () => import('../views/Keys.vue') },

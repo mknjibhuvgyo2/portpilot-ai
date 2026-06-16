@@ -8,7 +8,15 @@ export const ja = {
   },
   nav: {
     dashboard: 'ダッシュボード', ports: 'ポートサービス', models: 'モデル / プロバイダ', promptlab: 'プロンプト逆生成',
-    keys: 'API キー', chat: 'プレイグラウンド', users: 'ユーザー管理', settings: '設定', taskflows: 'タスクフロー',
+    keys: 'API キー', chat: 'プレイグラウンド', users: 'ユーザー管理', settings: '設定', taskflows: 'タスクフロー', importer: 'インポート',
+  },
+  importer: {
+    title: 'インポートウィザード', subtitle: '既存 AI サービスのソースを貼り付け → AI がプロンプト/モデル/フローを抽出 → ポート設定を生成 → ワンクリック導入。',
+    model: '解析モデル', modelHint: 'コードを読むモデルルート（高性能なオンラインモデル推奨）。',
+    codePh: '既存 AI サービスのソースをここに貼り付け（main.py / server.js など、複数ファイル可）…',
+    analyze: '解析生成', analyzing: '解析中…', viewPrompt: '抽出プロンプトを見る', usedModel: 'モデル',
+    generated: '生成されたポート設定（編集してから導入可）', apply: '一括導入', applying: '導入中…',
+    needCode: 'まずソースを貼り付けてください', badJson: 'JSON が不正です', result: 'インポート結果', created: '作成済み', goPorts: 'ポートで確認',
   },
   taskflows: {
     title: 'タスクフロー', subtitle: '各ポートのタスクパイプライン一覧：順に実行、各タスクは独立してモデルを選び、前の出力が次へ渡されます。',

@@ -8,7 +8,15 @@ export const en = {
   },
   nav: {
     dashboard: 'Dashboard', ports: 'Ports', models: 'Models', promptlab: 'PromptLab',
-    keys: 'API Keys', chat: 'Playground', users: 'Users', settings: 'Settings', taskflows: 'Task Flows',
+    keys: 'API Keys', chat: 'Playground', users: 'Users', settings: 'Settings', taskflows: 'Task Flows', importer: 'Import Wizard',
+  },
+  importer: {
+    title: 'Import Wizard', subtitle: 'Paste an existing AI service’s source → AI extracts its prompts / models / pipeline → generates port configs → one-click import.',
+    model: 'Analysis model', modelHint: 'Which model route reads your code (use a strong online model).',
+    codePh: 'Paste your existing AI service source here (main.py / server.js …, multiple files OK)…',
+    analyze: 'Analyze', analyzing: 'Analyzing…', viewPrompt: 'View extraction prompt', usedModel: 'Model',
+    generated: 'Generated port config (edit before importing)', apply: 'Import', applying: 'Importing…',
+    needCode: 'Paste some source first', badJson: 'Invalid JSON, please check', result: 'Import result', created: 'Created', goPorts: 'View in Ports',
   },
   taskflows: {
     title: 'Task Flows', subtitle: 'The task pipeline of every port: run in order, each task picks its own model, each step feeds the next.',

@@ -19,6 +19,7 @@ const nav = [
   { to: '/dashboard', key: 'dashboard', icon: 'dashboard' },
   { to: '/ports', key: 'ports', icon: 'ports' },
   { to: '/taskflows', key: 'taskflows', icon: 'sliders' },
+  { to: '/importer', key: 'importer', icon: 'upload', adminOnly: true },
   { to: '/models', key: 'models', icon: 'models' },
   { to: '/promptlab', key: 'promptlab', icon: 'spark' },
   { to: '/keys', key: 'keys', icon: 'keys' },

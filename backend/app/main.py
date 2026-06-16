@@ -23,6 +23,7 @@ from app.db.session import SessionLocal
 from app.config_io.router import router as config_router
 from app.exporters.router import router as exporters_router
 from app.gateway.proxy import router as gateway_router
+from app.importer.router import router as importer_router
 from app.models_layer.api import router as models_router
 from app.monitor.router import router as monitor_router
 from app.ports.manager import config_from_row, manager
@@ -68,7 +69,8 @@ app.add_middleware(
 
 for r in (auth_router, ports_router, models_router, monitor_router, chat_router,
           keys_router, usage_router, prompts_router, exporters_router,
-          promptlab_router, config_router, users_router, tools_router, gateway_router):
+          promptlab_router, config_router, users_router, tools_router, gateway_router,
+          importer_router):
     app.include_router(r)
 
 

@@ -8,7 +8,15 @@ export const zh = {
   },
   nav: {
     dashboard: '监控总览', ports: '端口服务', models: '模型与厂商', promptlab: '提示词逆推',
-    keys: 'API 密钥', chat: '试验场', users: '用户管理', settings: '设置', taskflows: '任务流',
+    keys: 'API 密钥', chat: '试验场', users: '用户管理', settings: '设置', taskflows: '任务流', importer: '导入向导',
+  },
+  importer: {
+    title: '导入向导', subtitle: '贴入已有 AI 服务源码 → AI 提取提示词/模型/流程 → 生成端口配置 → 一键导入。',
+    model: '分析用模型', modelHint: '用哪个模型路由来读你的代码（建议用能力强的在线模型）',
+    codePh: '把你已有 AI 服务的核心源码贴这里（main.py / server.js 等，可多文件拼接）…',
+    analyze: '分析生成', analyzing: '分析中…', viewPrompt: '查看提取提示词', usedModel: '分析模型',
+    generated: '生成的端口配置（可手动修改后导入）', apply: '一键导入', applying: '导入中…',
+    needCode: '请先粘贴源码', badJson: 'JSON 格式有误，请检查', result: '导入结果', created: '已创建', goPorts: '去端口服务查看',
   },
   taskflows: {
     title: '任务流', subtitle: '每个端口的任务流水线一览：按顺序执行，每个任务独立选模型，上一步输出喂给下一步。',
