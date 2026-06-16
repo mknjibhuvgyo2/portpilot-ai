@@ -26,3 +26,6 @@ pkgroot/
 Thumbs.db
 .idea/
 .vscode/
+
+# scratch / probe output
+.tmp_probe/
