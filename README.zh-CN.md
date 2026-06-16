@@ -32,10 +32,8 @@
 - **任务流**：一个端口可串联一条有序任务流水线，每个任务独立配模型+提示词，上一步输出喂下一步。每个任务两种模式：**固定**（用配置的模型）或**模型池**（由调用方请求体的 `model` 字段选模型，可加允许名单约束）。UI 内可编辑，并有独立的「任务流」页面。
 - **反向代理网关**：`/gw/<slug>/...` 转发到对应端口，可选 API Key 鉴权。
 
-**应用模板（9 种 + 6 条评估流水线）**
+**应用模板（9 种）**
 `generic_chat`（通用聊天/评分）· `scoring` · `translate` · `vision` · `summarize` · `embedding`（`/v1/embeddings`，RAG 向量化）· `rerank`（`/v1/rerank`，Jina/Cohere 兼容精排）· `passthrough`（透传完整 OpenAI 请求体：tools/JSON 模式/seed…）· `custom`。
-
-多阶段**评估流水线**（任务流）：`scoring_eval`（视觉评分——评分题+单/多选）· `matcher_eval`（两阶段图像/视频指标匹配）· `analyze_eval` + `chat_eval`（问卷统计分析 + 项目问答）· `visual_eval`（场景化评分 JSON + 报告）· `questionnaire_eval`（问卷生成）。
 
 **模型厂商**
 - 原生适配：**OpenAI 兼容**、**Ollama**、**Anthropic（Claude）**、**Google Gemini**。

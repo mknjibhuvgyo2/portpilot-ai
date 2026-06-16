@@ -32,10 +32,8 @@
 - **タスクフロー** — 1 つのポートで独立したタスクの順次パイプラインを実行。各タスクは独自のモデル+プロンプトを持ち、前の出力が次へ渡されます。タスクごとに**固定**（設定したモデル）か**モデルプール**（リクエストの `model` フィールドで選択、許可リストで制限可）。UI で編集でき、専用の「タスクフロー」ページもあります。
 - **リバースプロキシ ゲートウェイ** — `/gw/<slug>/...` を該当ポートへ転送、API キー認証は任意。
 
-**アプリテンプレート（9 種 + 6 つの評価パイプライン）**
+**アプリテンプレート（9 種）**
 `generic_chat` · `scoring` · `translate` · `vision` · `summarize` · `embedding`（`/v1/embeddings`、RAG）· `rerank`（`/v1/rerank`、Jina/Cohere 互換）· `passthrough`（OpenAI ボディ完全透過：tools / JSON モード / seed …）· `custom`。
-
-多段の**評価パイプライン**（タスクフロー）：`scoring_eval`（視覚採点——採点+単一/複数選択）· `matcher_eval`（2 段階の画像/動画 指標マッチング）· `analyze_eval` + `chat_eval`（アンケート分析 + プロジェクト Q&A）· `visual_eval`（シーン別 採点 JSON + レポート）· `questionnaire_eval`（アンケート生成）。
 
 **プロバイダ**
 - ネイティブ対応：**OpenAI 互換**、**Ollama**、**Anthropic（Claude）**、**Google Gemini**。

@@ -32,10 +32,8 @@
 - **Task flow** — a port runs an ordered pipeline of independent tasks, each with its own model + prompt, each step feeding the next. Per task: **fixed** (its configured model) or **model pool** (the caller's request `model` field picks the model, optionally constrained to an allow-list). Editable in the UI and on a dedicated **Task Flows** page.
 - **Reverse-proxy gateway** — `/gw/<slug>/...` forwards to the right port, with optional API-key auth.
 
-**App templates (9 + 6 evaluation pipelines)**
+**App templates (9)**
 `generic_chat` · `scoring` · `translate` · `vision` · `summarize` · `embedding` (`/v1/embeddings`, RAG) · `rerank` (`/v1/rerank`, Jina/Cohere-compatible) · `passthrough` (transparent full OpenAI body: tools / JSON mode / seed …) · `custom`.
-
-Multi-stage **evaluation pipelines** (task flows): `scoring_eval` (visual scoring — scores + single/multi-choice) · `matcher_eval` (two-stage image/video indicator matching) · `analyze_eval` + `chat_eval` (questionnaire analytics + project Q&A) · `visual_eval` (scene-based score JSON + report) · `questionnaire_eval` (questionnaire generation).
 
 **Providers**
 - Native adapters: **OpenAI-compatible**, **Ollama**, **Anthropic (Claude)**, **Google Gemini**.

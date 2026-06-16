@@ -3,11 +3,6 @@ from __future__ import annotations
 
 from app.apps.base import AppTemplate
 from app.apps.embedding import EmbeddingTemplate
-from app.apps.eval_matcher import MatcherEvalTemplate
-from app.apps.eval_platform import AnalyzeEvalTemplate, ChatEvalTemplate
-from app.apps.eval_questionnaire import QuestionnaireEvalTemplate
-from app.apps.eval_scoring import ScoringEvalTemplate
-from app.apps.eval_visual import VisualEvalTemplate
 from app.apps.generic_chat import GenericChatTemplate
 from app.apps.passthrough import PassthroughTemplate
 from app.apps.rerank import RerankTemplate
@@ -47,9 +42,3 @@ register(EmbeddingTemplate())
 register(RerankTemplate())
 register(PassthroughTemplate())
 register(CustomTemplate())
-register(ScoringEvalTemplate())
-register(MatcherEvalTemplate())
-register(AnalyzeEvalTemplate())
-register(ChatEvalTemplate())
-register(VisualEvalTemplate())
-register(QuestionnaireEvalTemplate())
