@@ -69,7 +69,7 @@ if sys.platform == "darwin":
         info_plist={
             "CFBundleName": "PORTHUB",
             "CFBundleDisplayName": "PORTHUB",
-            "CFBundleShortVersionString": "0.1.1",
+            "CFBundleShortVersionString": "0.1.2",
             "LSBackgroundOnly": False,
         },
     )

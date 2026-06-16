@@ -9,7 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - (add upcoming changes here)
 
-## [0.1.1] - 2026-06-08
+## [0.1.2] - 2026-06-08
+
+### Changed
+- Removed the 6 evaluation app templates (visual scoring / matching /
+  questionnaire pipelines) — they were domain-specific and out of scope for the
+  open-source core. Generic Task Flows and the Import Wizard remain. 9 app
+  templates ship.
+
+> Note: `v0.1.1` was unpublished (its binaries bundled the removed templates).
+> Use `v0.1.2` or later.
+
+## [0.1.1] - 2026-06-08 (unpublished)
 
 ### Fixed
 - Packaged launcher now auto-selects the next free port when the configured
@@ -64,6 +75,7 @@ First public release. 🎉
 - Single-process deployment (backend serves the built frontend); Docker image + Compose.
 - CI (pytest + frontend build + image build) and GHCR release workflow.
 
-[Unreleased]: https://github.com/mknjibhuvgyo2/portpilot-ai/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/mknjibhuvgyo2/portpilot-ai/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/mknjibhuvgyo2/portpilot-ai/releases/tag/v0.1.2
 [0.1.1]: https://github.com/mknjibhuvgyo2/portpilot-ai/releases/tag/v0.1.1
 [0.1.0]: https://github.com/mknjibhuvgyo2/portpilot-ai/releases/tag/v0.1.0
