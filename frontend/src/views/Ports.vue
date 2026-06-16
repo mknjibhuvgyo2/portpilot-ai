@@ -43,7 +43,7 @@ const blank = () => ({
   streaming: true, concurrency: 8, timeout: 120,
   max_retries: 2, logging_enabled: true, log_keep: 10, auth_required: false, autostart: false,
   // Task flow: ordered, independent tasks. tasks[0] is the main/first stage.
-  tasks: [{ name: '', alias: '', prompt: '' }] as Array<{ name: string; alias: string; prompt: string }>,
+  tasks: [{ name: '', alias: '', prompt: '', mode: 'fixed', pool: [] as string[] }],
 })
 const form = ref(blank())
 
@@ -67,7 +67,7 @@ function onAppTypeChange() {
   const tpl = templates.value.find((t) => t.app_type === form.value.app_type)
   if (tpl && tpl.default_prompt && !form.value.tasks[0].prompt) form.value.tasks[0].prompt = tpl.default_prompt
 }
-function addTask() { form.value.tasks.push({ name: '', alias: '', prompt: '' }) }
+function addTask() { form.value.tasks.push({ name: '', alias: '', prompt: '', mode: 'fixed', pool: [] }) }
 function removeTask(i: number) { if (form.value.tasks.length > 1) form.value.tasks.splice(i, 1) }
 function onTaskAlias(i: number) {
   // bottom "+ new route" option jumps to the route editor (opens create modal)
@@ -81,8 +81,9 @@ function openCreate() { editingId.value = null; form.value = blank(); tab.value 
 function openEdit(p: any) {
   editingId.value = p.id
   const tasks = (p.extra && Array.isArray(p.extra.tasks) && p.extra.tasks.length)
-    ? p.extra.tasks.map((tk: any) => ({ name: tk.name || '', alias: tk.alias || '', prompt: tk.prompt || '' }))
-    : [{ name: '', alias: p.model_alias || '', prompt: p.system_prompt || '' }]
+    ? p.extra.tasks.map((tk: any) => ({ name: tk.name || '', alias: tk.alias || '', prompt: tk.prompt || '',
+        mode: tk.mode === 'pool' ? 'pool' : 'fixed', pool: Array.isArray(tk.pool) ? tk.pool : [] }))
+    : [{ name: '', alias: p.model_alias || '', prompt: p.system_prompt || '', mode: 'fixed', pool: [] }]
   form.value = { ...blank(), ...p, tasks }
   tab.value = 'basic'; err.value = ''; showForm.value = true
 }
@@ -252,11 +253,26 @@ async function saveToLibrary() {
                   <WaIcon name="trash" :size="14" />
                 </button>
               </div>
-              <select v-model="tk.alias" class="input" @change="onTaskAlias(i)">
-                <option value="">{{ t('ports.selectAlias') }}</option>
-                <option v-for="a in aliases" :key="a.id" :value="a.alias">{{ a.alias }}</option>
-                <option value="__new__">＋ {{ t('ports.newAliasInline') }}</option>
-              </select>
+              <div class="flex items-center gap-2">
+                <select v-model="tk.mode" class="input !w-32 shrink-0 !py-1.5 text-xs">
+                  <option value="fixed">{{ t('ports.taskflow.fixed') }}</option>
+                  <option value="pool">{{ t('ports.taskflow.pool') }}</option>
+                </select>
+                <select v-model="tk.alias" class="input" @change="onTaskAlias(i)">
+                  <option value="">{{ t('ports.selectAlias') }}</option>
+                  <option v-for="a in aliases" :key="a.id" :value="a.alias">{{ a.alias }}</option>
+                  <option value="__new__">＋ {{ t('ports.newAliasInline') }}</option>
+                </select>
+              </div>
+              <div v-if="tk.mode === 'pool'" class="space-y-1 rounded-md border border-accent-500/30 bg-accent-500/5 p-2">
+                <p class="text-[11px] leading-relaxed text-steel-500 dark:text-steel-400">{{ t('ports.taskflow.poolHint') }}</p>
+                <div class="flex flex-wrap gap-x-3 gap-y-1">
+                  <label v-for="a in aliases" :key="a.id" class="flex items-center gap-1 text-[11px]">
+                    <input type="checkbox" :value="a.alias" v-model="tk.pool" class="accent-accent-600" />{{ a.alias }}
+                  </label>
+                  <span v-if="!aliases.length" class="text-[11px] text-steel-400">{{ t('ports.taskflow.poolAny') }}</span>
+                </div>
+              </div>
               <textarea v-model="tk.prompt" rows="2" class="input font-mono text-[11px] leading-relaxed"
                 :placeholder="t('ports.taskflow.prompt')"></textarea>
             </div>

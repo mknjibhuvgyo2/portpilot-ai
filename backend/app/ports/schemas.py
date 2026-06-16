@@ -8,10 +8,16 @@ from pydantic import BaseModel, Field, field_validator
 
 class TaskItem(BaseModel):
     """One stage of a port's task flow: an independent model call with its own
-    alias and optional prompt. Pipeline stages are consumed in order."""
+    alias and optional prompt. Pipeline stages are consumed in order.
+
+    mode "fixed" (default): always use `alias`.
+    mode "pool": use the model named in the request body; if `pool` is non-empty the
+    requested model must be in it, otherwise it falls back to `alias`."""
     name: str = ""
     alias: str = ""
     prompt: str = ""
+    mode: str = "fixed"
+    pool: list[str] = []
 
 
 class PortCreate(BaseModel):

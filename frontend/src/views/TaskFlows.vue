@@ -15,12 +15,13 @@ onMounted(async () => { ports.value = (await api.get('/api/ports')).data })
 
 // Build a normalized task list for a port: explicit extra.tasks, else a single
 // task synthesized from model_alias / system_prompt.
-function tasksOf(p: any): Array<{ name: string; alias: string; prompt: string }> {
+function tasksOf(p: any): Array<{ name: string; alias: string; prompt: string; mode: string }> {
   const tk = p?.extra?.tasks
   if (Array.isArray(tk) && tk.length) {
-    return tk.map((x: any) => ({ name: x.name || '', alias: x.alias || '', prompt: x.prompt || '' }))
+    return tk.map((x: any) => ({ name: x.name || '', alias: x.alias || '', prompt: x.prompt || '',
+      mode: x.mode === 'pool' ? 'pool' : 'fixed' }))
   }
-  return [{ name: '', alias: p.model_alias || '', prompt: p.system_prompt || '' }]
+  return [{ name: '', alias: p.model_alias || '', prompt: p.system_prompt || '', mode: 'fixed' }]
 }
 
 const rows = computed(() =>
@@ -63,6 +64,9 @@ function edit(p: any) { router.push({ path: '/ports', query: { edit: p.id } }) }
               <div class="flex items-center gap-1.5">
                 <span class="chip bg-accent-500/12 text-accent-600 dark:text-accent-300">{{ t('taskflows.stage') }} {{ i + 1 }}</span>
                 <span class="truncate text-xs font-medium text-steel-600 dark:text-steel-300">{{ tk.name || '—' }}</span>
+                <span class="chip ml-auto" :class="tk.mode === 'pool' ? 'bg-kin-400/15 text-kin-600 dark:text-kin-400' : 'bg-steel-500/10 text-steel-400'">
+                  {{ tk.mode === 'pool' ? t('ports.taskflow.pool') : t('ports.taskflow.fixed') }}
+                </span>
               </div>
               <div class="flex items-center gap-1 font-mono text-[11px]"
                 :class="tk.alias ? 'text-ai-700 dark:text-kin-300' : 'text-aka-500'">
