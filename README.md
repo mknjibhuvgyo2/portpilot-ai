@@ -56,6 +56,9 @@
 **PromptLab**
 - Give input→output examples (images supported) and **infer a system prompt**; pick constraints, test reproduction, save to the prompt library, one-click apply to a port.
 
+**Import Wizard**
+- Paste an existing AI service's source; an LLM extracts its prompts / models / pipeline and generates importable port configs (with task flows) — review/edit, then one-click apply. Empty fields auto-fill (slug from name, next free port, default app type / alias).
+
 **Platform**
 - **RBAC user management** (admin/user, lockout guards).
 - **i18n EN / 中文 / 日本語**, light/dark theme, *wafu* (和風) UI.
@@ -218,7 +221,6 @@ WeChat tip code:
 - [ ] More app templates (audio/ASR, image-generation proxy)
 - [ ] Finer VRAM-threshold / mixed-weight scheduling
 - [ ] Usage-trend charts, Prometheus metrics export
-- [ ] Wizard to migrate standalone scripts into app templates
 - [ ] End-to-end tests / Playwright
 
 Suggestions welcome in Issues. Shipped capabilities: see Features above and [CHANGELOG.md](CHANGELOG.md).
