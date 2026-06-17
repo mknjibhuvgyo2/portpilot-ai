@@ -131,7 +131,7 @@ async function toggleTrend(k: any) {
       <div class="card overflow-x-auto p-0">
         <table class="w-full text-sm">
           <thead class="border-b border-steel-200/70 text-left dark:border-steel-800">
-            <tr class="[&>th]:label [&>th]:px-4 [&>th]:py-3">
+            <tr class="[&>th]:font-serif [&>th]:text-[11px] [&>th]:font-semibold [&>th]:tracking-[0.18em] [&>th]:text-steel-500 dark:[&>th]:text-steel-400 [&>th]:px-4 [&>th]:py-3">
               <th>{{ t('keys.name') }}</th><th>{{ t('keys.scope') }}</th>
               <th>{{ t('keys.usedOfQuota') }}</th><th>{{ t('keys.estCost') }}</th>
               <th>{{ t('keys.status') }}</th><th class="text-right">{{ t('keys.actions') }}</th>
@@ -220,7 +220,7 @@ async function toggleTrend(k: any) {
         <div class="card p-0">
           <div class="label px-4 pt-3">{{ t('keys.byPort') }}</div>
           <table class="w-full text-sm">
-            <thead class="text-left"><tr class="[&>th]:label [&>th]:px-4 [&>th]:py-2"><th>{{ t('ports.name') }}</th><th class="text-right">{{ t('keys.requests') }}</th><th class="text-right">{{ t('keys.totalTokens') }}</th><th class="text-right">{{ t('keys.cost') }}</th></tr></thead>
+            <thead class="text-left"><tr class="[&>th]:font-serif [&>th]:text-[11px] [&>th]:font-semibold [&>th]:tracking-[0.18em] [&>th]:text-steel-500 dark:[&>th]:text-steel-400 [&>th]:px-4 [&>th]:py-2"><th>{{ t('ports.name') }}</th><th class="text-right">{{ t('keys.requests') }}</th><th class="text-right">{{ t('keys.totalTokens') }}</th><th class="text-right">{{ t('keys.cost') }}</th></tr></thead>
             <tbody>
               <tr v-for="r in summary.by_port" :key="r.port_id" class="border-t border-steel-100 dark:border-steel-800/60">
                 <td class="px-4 py-2 font-medium">{{ r.name }}</td>
@@ -235,7 +235,7 @@ async function toggleTrend(k: any) {
         <div class="card p-0">
           <div class="label px-4 pt-3">{{ t('keys.byModel') }}</div>
           <table class="w-full text-sm">
-            <thead class="text-left"><tr class="[&>th]:label [&>th]:px-4 [&>th]:py-2"><th>{{ t('keys.model') }}</th><th class="text-right">{{ t('keys.requests') }}</th><th class="text-right">{{ t('keys.totalTokens') }}</th><th class="text-right">{{ t('keys.cost') }}</th></tr></thead>
+            <thead class="text-left"><tr class="[&>th]:font-serif [&>th]:text-[11px] [&>th]:font-semibold [&>th]:tracking-[0.18em] [&>th]:text-steel-500 dark:[&>th]:text-steel-400 [&>th]:px-4 [&>th]:py-2"><th>{{ t('keys.model') }}</th><th class="text-right">{{ t('keys.requests') }}</th><th class="text-right">{{ t('keys.totalTokens') }}</th><th class="text-right">{{ t('keys.cost') }}</th></tr></thead>
             <tbody>
               <tr v-for="(r, i) in summary.by_model" :key="i" class="border-t border-steel-100 dark:border-steel-800/60">
                 <td class="px-4 py-2 font-mono text-xs">{{ r.model }}</td>

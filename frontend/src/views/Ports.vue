@@ -188,7 +188,7 @@ async function saveToLibrary() {
     <div class="card overflow-x-auto p-0">
       <table class="w-full text-sm">
         <thead class="border-b border-steel-200/70 text-left dark:border-steel-800">
-          <tr class="[&>th]:label [&>th]:px-4 [&>th]:py-3">
+          <tr class="[&>th]:font-serif [&>th]:text-[11px] [&>th]:font-semibold [&>th]:tracking-[0.18em] [&>th]:text-steel-500 dark:[&>th]:text-steel-400 [&>th]:px-4 [&>th]:py-3">
             <th>{{ t('ports.name') }}</th><th>{{ t('ports.port') }}</th><th>{{ t('ports.path') }}</th>
             <th>{{ t('ports.modelAlias') }}</th><th>{{ t('ports.status') }}</th><th class="text-right">{{ t('ports.actions') }}</th>
           </tr>
