@@ -22,6 +22,7 @@ def _serialize(p: PortService) -> dict:
     busy = (not running) and port_in_use(p.port)
     out["status"] = "running" if running else ("conflict" if busy else p.status.value)
     out["port_busy"] = busy
+    out["path_alias"] = str((p.extra or {}).get("path_alias", "") or "")
     out["metrics"] = metrics.snapshot(p.id)
     return out
 
@@ -78,6 +79,27 @@ def update_port(port_id: int, body: PortUpdate, db: Session = Depends(get_db),
     if not p:
         raise HTTPException(404, "not found")
     changed = body.model_dump(exclude_unset=True)
+
+    # --- slug: gateway path segment; gateway is DB-driven so it's instant ---
+    if "slug" in changed:
+        new_slug = changed.pop("slug")
+        if new_slug and new_slug != p.slug:
+            if (db.query(PortService)
+                    .filter(PortService.slug == new_slug, PortService.id != port_id).first()):
+                raise HTTPException(409, "slug already exists")
+            p.slug = new_slug
+
+    # --- path_alias: extra URL path the subprocess serves; routes are bound at
+    #     build time, so a change to a RUNNING port needs a restart to apply. ---
+    restart_needed = False
+    if "path_alias" in changed:
+        pa = changed.pop("path_alias") or ""
+        extra = dict(p.extra or {})
+        if str(extra.get("path_alias", "") or "") != pa:
+            extra["path_alias"] = pa
+            p.extra = extra
+            restart_needed = manager.is_running(port_id)
+
     if "tasks" in changed or "debug" in changed:
         changed.setdefault("extra", dict(p.extra or {}))
         changed = _apply_tasks(changed)
@@ -91,7 +113,7 @@ def update_port(port_id: int, body: PortUpdate, db: Session = Depends(get_db),
     # bootstrap) and already live via the DB, so any edit to a running port
     # applies without a restart.
     hot_swapped = bool(changed) and manager.update_config(port_id, changed)
-    return {**_serialize(p), "hot_swapped": hot_swapped}
+    return {**_serialize(p), "hot_swapped": hot_swapped, "restart_needed": restart_needed}
 
 
 @router.delete("/{port_id}")

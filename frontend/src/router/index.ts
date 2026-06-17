@@ -10,6 +10,7 @@ const routes = [
       { path: '', redirect: '/dashboard' },
       { path: 'dashboard', component: () => import('../views/Dashboard.vue') },
       { path: 'ports', component: () => import('../views/Ports.vue') },
+      { path: 'paths', component: () => import('../views/PortPaths.vue') },
       { path: 'taskflows', component: () => import('../views/TaskFlows.vue') },
       { path: 'importer', component: () => import('../views/ImportWizard.vue') },
       { path: 'models', component: () => import('../views/Models.vue') },

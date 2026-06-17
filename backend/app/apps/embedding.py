@@ -89,6 +89,9 @@ def build_embedding_app(config: PortConfig) -> FastAPI:
                       "total_tokens": usage.prompt_tokens},
         }
 
+    if config.path_alias:
+        app.add_api_route(config.path_alias, embeddings, methods=["POST"])
+
     return app
 
 

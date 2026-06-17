@@ -49,6 +49,8 @@ class PortCreate(BaseModel):
 
 class PortUpdate(BaseModel):
     name: str | None = None
+    slug: str | None = None            # gateway path segment (/gw/<slug>/...) — editable
+    path_alias: str | None = None      # extra URL path the main endpoint is also served at
     model_alias: str | None = None
     system_prompt: str | None = None
     streaming: bool | None = None
@@ -61,6 +63,29 @@ class PortUpdate(BaseModel):
     autostart: bool | None = None
     debug: bool | None = None
     tasks: list[TaskItem] | None = None
+
+    @field_validator("slug")
+    @classmethod
+    def _slug_ok(cls, v: str | None) -> str | None:
+        if v is not None and not re.fullmatch(r"[a-z0-9][a-z0-9\-_]*", v):
+            raise ValueError("slug must be lowercase alphanumeric, '-' or '_'")
+        return v
+
+    @field_validator("path_alias")
+    @classmethod
+    def _path_ok(cls, v: str | None) -> str | None:
+        if v is None:
+            return v
+        v = v.strip()
+        if not v:
+            return ""
+        if not v.startswith("/"):
+            v = "/" + v
+        if v in ("/health", "/info", "/v1/models"):
+            raise ValueError("path conflicts with a reserved endpoint")
+        if not re.fullmatch(r"/[A-Za-z0-9\-_/.]*", v):
+            raise ValueError("path may only contain letters, digits, '-', '_', '/', '.'")
+        return v
 
 
 class PortOut(BaseModel):
@@ -80,6 +105,7 @@ class PortOut(BaseModel):
     auth_required: bool
     autostart: bool
     status: str
+    path_alias: str = ""
     extra: dict = {}
 
     class Config:

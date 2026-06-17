@@ -102,6 +102,9 @@ def build_passthrough_app(config: PortConfig) -> FastAPI:
         )
         return JSONResponse(data)
 
+    if config.path_alias:
+        app.add_api_route(config.path_alias, chat_completions, methods=["POST"])
+
     return app
 
 

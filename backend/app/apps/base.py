@@ -31,6 +31,7 @@ class PortConfig:
     log_keep: int = 10
     auth_required: bool = False
     debug: bool = False  # verbose logging: store full (untruncated) request/response + each task-flow stage
+    path_alias: str = ""  # optional extra URL path the main endpoint is also served at (e.g. "/myapi")
     extra: dict[str, Any] = field(default_factory=dict)
 
 

@@ -7,8 +7,16 @@ export const zh = {
     enable: '启用', disable: '停用',
   },
   nav: {
-    dashboard: '监控总览', ports: '端口服务', models: '模型与厂商', promptlab: '提示词逆推',
+    dashboard: '监控总览', ports: '端口服务', paths: '端口路径', models: '模型与厂商', promptlab: '提示词逆推',
     keys: 'API 密钥', chat: '试验场', users: '用户管理', settings: '设置', taskflows: '任务流', importer: '导入向导',
+  },
+  paths: {
+    title: '端口路径', subtitle: '每个端口服务对外暴露的全部调用地址（host:端口 后面的 /路径），含直连与网关两种；可改网关 slug、加自定义路径。',
+    empty: '还没有端口服务。', slug: '网关 slug（/gw/<slug>/）', customPath: '自定义路径', path: '路径',
+    directUrl: '直连地址', gatewayUrl: '网关地址', main: '主端点', custom: '自定义', restart: '重启',
+    saved: '✅ 已保存', restartHint: '⚠️ 自定义路径已保存，需重启该端口才生效（点上面的“重启”）。',
+    customPathHint: '把主端点也挂到一个自定义路径上（如 /myapi），与标准 /v1/* 并存；改 slug 即时生效，改自定义路径需重启端口。',
+    gatewayNote: '网关地址前缀为本机 hub 的 /gw/<slug>/；直连地址用各端口自身端口号（内网需开放对应端口）。',
   },
   importer: {
     title: '导入向导', subtitle: '贴入已有 AI 服务源码 → AI 提取提示词/模型/流程 → 生成端口配置 → 一键导入。',

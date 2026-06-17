@@ -215,6 +215,10 @@ def build_generic_chat_app(config: PortConfig) -> FastAPI:
                       "total_tokens": result.usage.prompt_tokens + result.usage.completion_tokens},
         })
 
+    # also serve the main endpoint at a user-defined custom path, if any
+    if config.path_alias:
+        app.add_api_route(config.path_alias, chat_completions, methods=["POST"])
+
     return app
 
 

@@ -105,6 +105,9 @@ def build_rerank_app(config: PortConfig) -> FastAPI:
                       "total_tokens": usage.prompt_tokens},
         }
 
+    if config.path_alias:
+        app.add_api_route(config.path_alias, rerank, methods=["POST"])
+
     return app
 
 

@@ -149,5 +149,6 @@ def config_from_row(row) -> PortConfig:
         concurrency=row.concurrency, timeout=row.timeout, max_retries=row.max_retries,
         logging_enabled=row.logging_enabled, log_keep=row.log_keep,
         auth_required=row.auth_required, debug=bool((row.extra or {}).get("debug")),
+        path_alias=str((row.extra or {}).get("path_alias", "") or ""),
         extra=dict(row.extra or {}),
     )

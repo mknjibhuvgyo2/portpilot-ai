@@ -7,8 +7,16 @@ export const en = {
     enable: 'Enable', disable: 'Disable',
   },
   nav: {
-    dashboard: 'Dashboard', ports: 'Ports', models: 'Models', promptlab: 'PromptLab',
+    dashboard: 'Dashboard', ports: 'Ports', paths: 'Port Paths', models: 'Models', promptlab: 'PromptLab',
     keys: 'API Keys', chat: 'Playground', users: 'Users', settings: 'Settings', taskflows: 'Task Flows', importer: 'Import Wizard',
+  },
+  paths: {
+    title: 'Port Paths', subtitle: 'Every callable URL each port service exposes (the /path after host:port) — direct and via gateway. Edit the gateway slug or add a custom path.',
+    empty: 'No port services yet.', slug: 'Gateway slug (/gw/<slug>/)', customPath: 'Custom path', path: 'Path',
+    directUrl: 'Direct URL', gatewayUrl: 'Gateway URL', main: 'main', custom: 'custom', restart: 'Restart',
+    saved: '✅ Saved', restartHint: '⚠️ Custom path saved — restart this port to apply (click Restart above).',
+    customPathHint: 'Also serve the main endpoint at a custom path (e.g. /myapi) alongside the standard /v1/*. Slug changes apply instantly; custom-path changes need a port restart.',
+    gatewayNote: "Gateway URLs are under this hub's /gw/<slug>/; direct URLs use each port's own port number (open that port on your LAN).",
   },
   importer: {
     title: 'Import Wizard', subtitle: 'Paste an existing AI service’s source → AI extracts its prompts / models / pipeline → generates port configs → one-click import.',

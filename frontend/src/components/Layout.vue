@@ -18,6 +18,7 @@ const langOpen = ref(false)
 const nav = [
   { to: '/dashboard', key: 'dashboard', icon: 'dashboard' },
   { to: '/ports', key: 'ports', icon: 'ports' },
+  { to: '/paths', key: 'paths', icon: 'network' },
   { to: '/taskflows', key: 'taskflows', icon: 'sliders' },
   { to: '/importer', key: 'importer', icon: 'upload', adminOnly: true },
   { to: '/models', key: 'models', icon: 'models' },
