@@ -101,6 +101,8 @@ class PortManager:
             for k, v in fields.items():
                 if k in HOT_SWAP_FIELDS and hasattr(runner.config, k):
                     setattr(runner.config, k, v)
+            if "extra" in fields:  # keep derived debug flag in sync with extra
+                runner.config.debug = bool((runner.config.extra or {}).get("debug"))
             return True
 
     def is_running(self, port_id: int) -> bool:
@@ -127,6 +129,17 @@ async def health_check(port: int, timeout: float = 4.0) -> bool:
         return False
 
 
+def port_in_use(port: int) -> bool:
+    """True if something is already listening on 127.0.0.1:<port> (any process)."""
+    import socket
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.settimeout(0.3)
+        try:
+            return s.connect_ex(("127.0.0.1", int(port))) == 0
+        except OSError:
+            return False
+
+
 def config_from_row(row) -> PortConfig:
     """Build a thread-safe PortConfig snapshot from a PortService ORM row."""
     return PortConfig(
@@ -135,5 +148,6 @@ def config_from_row(row) -> PortConfig:
         system_prompt=row.system_prompt, streaming=row.streaming,
         concurrency=row.concurrency, timeout=row.timeout, max_retries=row.max_retries,
         logging_enabled=row.logging_enabled, log_keep=row.log_keep,
-        auth_required=row.auth_required, extra=dict(row.extra or {}),
+        auth_required=row.auth_required, debug=bool((row.extra or {}).get("debug")),
+        extra=dict(row.extra or {}),
     )

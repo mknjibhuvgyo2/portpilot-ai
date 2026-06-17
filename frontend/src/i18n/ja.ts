@@ -52,6 +52,7 @@ export const ja = {
   ports: {
     title: 'ポートサービス', newService: '新規サービス', name: '名称', port: 'ポート', path: 'パス',
     modelAlias: 'モデル別名', status: '状態', actions: '操作', noServices: 'サービスなし',
+    statusConflict: 'ポート使用中', conflictHint: 'このポートは他のプロセスが使用中で起動できません。該当プロセスを停止するか別のポートを使ってください。',
     createTitle: '新規ポートサービス', editTitle: 'ポートサービスの編集',
     tabs: { basic: '基本', model: 'タスクフロー', prompt: 'プロンプト', runtime: '実行設定', gateway: 'ゲートウェイ' },
     taskflow: {
@@ -66,6 +67,7 @@ export const ja = {
     slug: 'slug（パス）', appType: 'アプリ種別', selectAlias: '（選択）', newAliasInline: 'モデルルート新規作成…',
     concurrency: '同時実行上限', timeout: 'タイムアウト(秒)', retries: 'リトライ回数', logKeep: 'ログ保持件数',
     systemPrompt: 'システムプロンプト', streaming: 'ストリーミング', enableLog: 'ログ有効',
+    debugLog: '詳細デバッグログ', debugHint: '完全なリクエスト/レスポンス/エラーを記録。タスクフローの各段を個別に記録（モデル・プロンプト・生出力）し、デバッグに便利。',
     authRequired: 'ゲートウェイに API キー必須', autostart: '自動起動',
     restartHint: '注意：稼働中サービスの変更は即時ホットスワップで反映されます（ポート / slug / アプリ種別を除く）。',
     gatewayUrl: 'ゲートウェイ URL（推奨）', directUrl: '直結 URL',

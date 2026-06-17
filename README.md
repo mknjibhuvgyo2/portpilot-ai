@@ -52,6 +52,8 @@
 - **Config backup/migration** — export/import all providers + routes + ports (keys redacted by default, portable across instances).
 - **Reverse-proxy export** — generate Nginx / Caddy config.
 - **Auto DB migration** — older databases get new columns added on startup.
+- **Port-conflict guard** — a port already taken by another process shows *in use* and can't be started.
+- **Verbose debug log** — per-port toggle that records the full (untruncated) request / response / error for deep inspection.
 
 **PromptLab**
 - Give input→output examples (images supported) and **infer a system prompt**; pick constraints, test reproduction, save to the prompt library, one-click apply to a port.

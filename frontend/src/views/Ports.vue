@@ -41,7 +41,7 @@ const tabs = [
 const blank = () => ({
   name: '', slug: '', port: 9001, app_type: 'generic_chat',
   streaming: true, concurrency: 8, timeout: 120,
-  max_retries: 2, logging_enabled: true, log_keep: 10, auth_required: false, autostart: false,
+  max_retries: 2, logging_enabled: true, log_keep: 10, auth_required: false, autostart: false, debug: false,
   // Task flow: ordered, independent tasks. tasks[0] is the main/first stage.
   tasks: [{ name: '', alias: '', prompt: '', mode: 'fixed', pool: [] as string[] }],
 })
@@ -93,6 +93,7 @@ function openEdit(p: any) {
         mode: tk.mode === 'pool' ? 'pool' : 'fixed', pool: Array.isArray(tk.pool) ? tk.pool : [] }))
     : [{ name: '', alias: p.model_alias || '', prompt: p.system_prompt || '', mode: 'fixed', pool: [] }]
   form.value = { ...blank(), ...p, tasks }
+  form.value.debug = !!(p.extra && p.extra.debug)
   tab.value = 'basic'; err.value = ''; showForm.value = true
 }
 function closeForm() { showForm.value = false; if (route.query.edit) router.replace({ path: '/ports' }) }
@@ -102,10 +103,10 @@ async function save() {
   try {
     if (editingId.value) {
       const { name, tasks, streaming, concurrency, timeout,
-        max_retries, logging_enabled, log_keep, auth_required, autostart } = form.value
+        max_retries, logging_enabled, log_keep, auth_required, autostart, debug } = form.value
       const { data } = await api.patch(`/api/ports/${editingId.value}`, {
         name, tasks, streaming, concurrency, timeout,
-        max_retries, logging_enabled, log_keep, auth_required, autostart,
+        max_retries, logging_enabled, log_keep, auth_required, autostart, debug,
       })
       if (data?.hot_swapped) showToast(t('ports.hotSwapped'))
     } else {
@@ -115,7 +116,11 @@ async function save() {
     await load()
   } catch (e: any) { err.value = e.response?.data?.detail || 'error' }
 }
-async function start(p: any) { await api.post(`/api/ports/${p.id}/start`); await load() }
+async function start(p: any) {
+  try { await api.post(`/api/ports/${p.id}/start`) }
+  catch (e: any) { showToast(e.response?.data?.detail || 'error') }
+  await load()
+}
 async function stop(p: any) { await api.post(`/api/ports/${p.id}/stop`); await load() }
 async function remove(p: any) {
   if (!confirm(`${t('common.delete')} ${p.name}?`)) return
@@ -197,8 +202,8 @@ async function saveToLibrary() {
             <td class="px-4 py-3 font-mono text-xs text-steel-500">/gw/{{ p.slug }}/</td>
             <td class="px-4 py-3">{{ p.model_alias || '—' }}</td>
             <td class="px-4 py-3">
-              <span class="chip" :class="p.status === 'running' ? 'bg-matcha-500/12 text-matcha-600' : 'bg-steel-500/10 text-steel-400'">
-                <span class="dot" :class="p.status === 'running' ? 'bg-matcha-500' : 'bg-steel-400'"></span>{{ p.status }}
+              <span class="chip" :class="p.status === 'running' ? 'bg-matcha-500/12 text-matcha-600' : (p.status === 'conflict' ? 'bg-aka-500/12 text-aka-600' : 'bg-steel-500/10 text-steel-400')">
+                <span class="dot" :class="p.status === 'running' ? 'bg-matcha-500' : (p.status === 'conflict' ? 'bg-aka-500' : 'bg-steel-400')"></span>{{ p.status === 'conflict' ? t('ports.statusConflict') : p.status }}
               </span>
             </td>
             <td class="px-4 py-3" @click.stop>
@@ -207,7 +212,8 @@ async function saveToLibrary() {
                 <button class="btn-ghost" @click="openLogs(p)"><WaIcon name="logs" :size="14" />{{ t('common.logs') }}</button>
                 <template v-if="auth.isAdmin">
                   <button class="btn-ghost" @click="openEdit(p)"><WaIcon name="edit" :size="14" />{{ t('common.edit') }}</button>
-                  <button v-if="p.status !== 'running'" class="btn-primary" @click="start(p)"><WaIcon name="play" :size="14" />{{ t('common.start') }}</button>
+                  <button v-if="p.status === 'conflict'" class="btn-ghost cursor-not-allowed text-aka-500 opacity-70" disabled :title="t('ports.conflictHint')"><WaIcon name="alert" :size="14" />{{ t('ports.statusConflict') }}</button>
+                  <button v-else-if="p.status !== 'running'" class="btn-primary" @click="start(p)"><WaIcon name="play" :size="14" />{{ t('common.start') }}</button>
                   <button v-else class="btn-ghost" @click="stop(p)"><WaIcon name="stop" :size="14" />{{ t('common.stop') }}</button>
                   <button class="btn-danger" @click="remove(p)"><WaIcon name="trash" :size="14" /></button>
                 </template>
@@ -332,7 +338,9 @@ async function saveToLibrary() {
             <div class="flex flex-wrap gap-5 text-xs">
               <label class="flex items-center gap-2"><input v-model="form.streaming" type="checkbox" class="accent-accent-600" />{{ t('ports.streaming') }}</label>
               <label class="flex items-center gap-2"><input v-model="form.logging_enabled" type="checkbox" class="accent-accent-600" />{{ t('ports.enableLog') }}</label>
+              <label class="flex items-center gap-2"><input v-model="form.debug" type="checkbox" class="accent-accent-600" />{{ t('ports.debugLog') }}</label>
             </div>
+            <p class="text-[11px] leading-relaxed text-steel-400">{{ t('ports.debugHint') }}</p>
           </div>
 
           <!-- gateway -->
@@ -384,8 +392,9 @@ async function saveToLibrary() {
               <span>{{ l.ts }} · {{ l.model_used }}</span>
               <span :class="l.ok ? 'text-matcha-600' : 'text-aka-500'">{{ l.ok ? 'OK' : 'ERR' }} · {{ Math.round(l.latency_ms) }}ms</span>
             </div>
-            <div class="mt-1"><span class="text-steel-400">→ </span>{{ l.request_excerpt }}</div>
-            <div class="mt-1"><span class="text-steel-400">← </span>{{ l.response_excerpt || l.error }}</div>
+            <div class="mt-1 max-h-72 overflow-auto whitespace-pre-wrap break-words font-mono text-[11px] leading-relaxed"><span class="text-steel-400">→ </span>{{ l.request_excerpt }}</div>
+            <div class="mt-1 max-h-72 overflow-auto whitespace-pre-wrap break-words font-mono text-[11px] leading-relaxed"><span class="text-steel-400">← </span>{{ l.response_excerpt }}</div>
+            <div v-if="l.error" class="mt-1 max-h-72 overflow-auto whitespace-pre-wrap break-words font-mono text-[11px] leading-relaxed text-aka-500"><span class="text-steel-400">✕ </span>{{ l.error }}</div>
           </div>
           <div v-if="!logs.length" class="py-6 text-center text-steel-400">{{ t('ports.noLogs') }}</div>
         </div>

@@ -113,7 +113,10 @@ def build_generic_chat_app(config: PortConfig) -> FastAPI:
 
         req = ChatRequest(messages=msgs, params=params, stream=want_stream)
         started = time.perf_counter()
-        req_excerpt = _excerpt(msgs)
+        dbg = bool(getattr(config, "debug", False))
+        req_excerpt = "\n".join(
+            f"--- {m.role} ---\n{m.content if isinstance(m.content, str) else _excerpt([m])}" for m in msgs
+        ) if dbg else _excerpt(msgs)
 
         if want_stream:
             async def gen():
@@ -174,6 +177,7 @@ def build_generic_chat_app(config: PortConfig) -> FastAPI:
                         response_excerpt=text, error=err,
                         prompt_tokens=pt, completion_tokens=ct,
                         logging_enabled=config.logging_enabled, log_keep=config.log_keep,
+                        debug=dbg,
                     )
 
             return StreamingResponse(gen(), media_type="text/event-stream")
@@ -187,6 +191,7 @@ def build_generic_chat_app(config: PortConfig) -> FastAPI:
                 config.id, False, (time.perf_counter() - started) * 1000,
                 model=config.model_alias, request_excerpt=req_excerpt, error=str(e),
                 logging_enabled=config.logging_enabled, log_keep=config.log_keep,
+                debug=dbg,
             )
             raise HTTPException(status_code=502, detail=str(e))
 
@@ -196,6 +201,7 @@ def build_generic_chat_app(config: PortConfig) -> FastAPI:
             completion_tokens=result.usage.completion_tokens,
             request_excerpt=req_excerpt, response_excerpt=result.text,
             logging_enabled=config.logging_enabled, log_keep=config.log_keep,
+            debug=dbg,
         )
         return JSONResponse({
             "id": f"chatcmpl-{uuid.uuid4().hex[:24]}",

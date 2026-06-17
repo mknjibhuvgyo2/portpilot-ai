@@ -9,7 +9,7 @@ from app.auth.deps import get_current_user, require_admin
 from app.db.models import PortService, PortStatus, RequestLog
 from app.db.session import get_db
 from app.monitor.metrics import metrics
-from app.ports.manager import config_from_row, health_check, manager
+from app.ports.manager import config_from_row, health_check, manager, port_in_use
 from app.ports.schemas import PortCreate, PortOut, PortUpdate
 
 router = APIRouter(prefix="/api/ports", tags=["ports"])
@@ -17,7 +17,11 @@ router = APIRouter(prefix="/api/ports", tags=["ports"])
 
 def _serialize(p: PortService) -> dict:
     out = PortOut.model_validate(p).model_dump()
-    out["status"] = "running" if manager.is_running(p.id) else p.status.value
+    running = manager.is_running(p.id)
+    # a stopped port whose host port is taken by another process is a conflict
+    busy = (not running) and port_in_use(p.port)
+    out["status"] = "running" if running else ("conflict" if busy else p.status.value)
+    out["port_busy"] = busy
     out["metrics"] = metrics.snapshot(p.id)
     return out
 
@@ -37,6 +41,7 @@ def _apply_tasks(data: dict) -> dict:
     model_alias/system_prompt in sync with tasks[0] (back-compat for the gateway
     and single-stage templates). Returns kwargs safe for the PortService model."""
     tasks = data.pop("tasks", None)
+    debug = data.pop("debug", None)
     if tasks:
         first = tasks[0]
         if first.get("alias"):
@@ -45,6 +50,10 @@ def _apply_tasks(data: dict) -> dict:
             data["system_prompt"] = first["prompt"]
         extra = dict(data.get("extra") or {})
         extra["tasks"] = tasks
+        data["extra"] = extra
+    if debug is not None:
+        extra = dict(data.get("extra") or {})
+        extra["debug"] = bool(debug)
         data["extra"] = extra
     return data
 
@@ -69,7 +78,7 @@ def update_port(port_id: int, body: PortUpdate, db: Session = Depends(get_db),
     if not p:
         raise HTTPException(404, "not found")
     changed = body.model_dump(exclude_unset=True)
-    if "tasks" in changed:
+    if "tasks" in changed or "debug" in changed:
         changed.setdefault("extra", dict(p.extra or {}))
         changed = _apply_tasks(changed)
     for k, v in changed.items():
@@ -102,6 +111,8 @@ def start_port(port_id: int, db: Session = Depends(get_db), _: object = Depends(
     p = db.get(PortService, port_id)
     if not p:
         raise HTTPException(404, "not found")
+    if not manager.is_running(p.id) and port_in_use(p.port):
+        raise HTTPException(409, f"端口 {p.port} 已被其他进程占用，无法启动 / port {p.port} already in use by another process")
     try:
         manager.start(config_from_row(p))
         p.status = PortStatus.running

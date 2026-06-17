@@ -37,6 +37,7 @@ class PortCreate(BaseModel):
     log_keep: int = Field(default=10, ge=0, le=1000)
     auth_required: bool = False
     autostart: bool = False
+    debug: bool = False
 
     @field_validator("slug")
     @classmethod
@@ -58,6 +59,7 @@ class PortUpdate(BaseModel):
     log_keep: int | None = Field(default=None, ge=0, le=1000)
     auth_required: bool | None = None
     autostart: bool | None = None
+    debug: bool | None = None
     tasks: list[TaskItem] | None = None
 
 

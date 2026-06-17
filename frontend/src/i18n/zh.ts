@@ -51,6 +51,7 @@ export const zh = {
   ports: {
     title: '端口服务', newService: '新建服务', name: '名称', port: '端口', path: '路径',
     modelAlias: '模型别名', status: '状态', actions: '操作', noServices: '暂无服务',
+    statusConflict: '端口被占用', conflictHint: '该端口已被其他进程占用，无法启动；请停掉占用方或改用其他端口。',
     createTitle: '新建端口服务', editTitle: '编辑端口服务',
     tabs: { basic: '基本', model: '任务流', prompt: '提示词', runtime: '运行参数', gateway: '网关' },
     taskflow: {
@@ -65,6 +66,7 @@ export const zh = {
     slug: 'slug（路径）', appType: '应用类型', selectAlias: '（选择）', newAliasInline: '新建模型路由…',
     concurrency: '并发上限', timeout: '超时(秒)', retries: '重试次数', logKeep: '日志保留条数',
     systemPrompt: '系统提示词', streaming: '流式输出', enableLog: '开启日志',
+    debugLog: '详细调试日志', debugHint: '记录完整的请求/响应/错误，多任务流每个阶段都单独记一条（含模型、提示词、原始输出），便于排错。',
     authRequired: '网关需 API Key', autostart: '开机自启',
     restartHint: '提示：运行中服务的参数会即时热切换生效，无需重启（端口 / slug / 应用类型除外）。',
     gatewayUrl: '网关地址（推荐）', directUrl: '直连地址',

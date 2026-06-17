@@ -52,6 +52,7 @@ export const en = {
   ports: {
     title: 'Ports', newService: 'New service', name: 'Name', port: 'Port', path: 'Path',
     modelAlias: 'Model alias', status: 'Status', actions: 'Actions', noServices: 'No services',
+    statusConflict: 'Port in use', conflictHint: 'This port is already used by another process — stop that process or pick another port.',
     createTitle: 'New port service', editTitle: 'Edit port service',
     tabs: { basic: 'Basic', model: 'Task Flow', prompt: 'Prompt', runtime: 'Runtime', gateway: 'Gateway' },
     taskflow: {
@@ -66,6 +67,7 @@ export const en = {
     slug: 'slug (path)', appType: 'App type', selectAlias: '(select)', newAliasInline: 'New model route…',
     concurrency: 'Max concurrency', timeout: 'Timeout (s)', retries: 'Retries', logKeep: 'Logs to keep',
     systemPrompt: 'System prompt', streaming: 'Streaming', enableLog: 'Logging',
+    debugLog: 'Verbose debug log', debugHint: 'Record full request/response/error; each task-flow stage gets its own entry (model, prompt, raw output) for troubleshooting.',
     authRequired: 'Gateway requires API key', autostart: 'Auto-start',
     restartHint: 'Note: edits to a running service hot-swap instantly — no restart needed (except port / slug / app type).',
     gatewayUrl: 'Gateway URL (recommended)', directUrl: 'Direct URL',

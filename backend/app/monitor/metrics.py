@@ -50,6 +50,7 @@ class MetricsRegistry:
         logging_enabled: bool = True,
         log_keep: int = 10,
         api_key_id: int | None = None,
+        debug: bool = False,
     ) -> None:
         with self._lock:
             m = self._by_port[port_id]
@@ -63,7 +64,7 @@ class MetricsRegistry:
         if logging_enabled:
             self._persist(
                 port_id, ok, latency_ms, model, prompt_tokens, completion_tokens,
-                request_excerpt, response_excerpt, error, log_keep,
+                request_excerpt, response_excerpt, error, log_keep, debug,
             )
 
     def _accumulate(self, port_id, api_key_id, model, ok, pt, ct) -> None:
@@ -91,13 +92,14 @@ class MetricsRegistry:
         finally:
             db.close()
 
-    def _persist(self, port_id, ok, latency_ms, model, pt, ct, req, resp, error, log_keep) -> None:
+    def _persist(self, port_id, ok, latency_ms, model, pt, ct, req, resp, error, log_keep, debug=False) -> None:
+        cap = 50000 if debug else 2000  # debug mode keeps full request/response for deep inspection
         db = SessionLocal()
         try:
             db.add(RequestLog(
                 port_id=port_id, ok=ok, latency_ms=latency_ms, model_used=model,
                 prompt_tokens=pt, completion_tokens=ct,
-                request_excerpt=req[:2000], response_excerpt=resp[:2000], error=error[:2000],
+                request_excerpt=req[:cap], response_excerpt=resp[:cap], error=error[:cap],
             ))
             db.commit()
             # prune to last `log_keep`
