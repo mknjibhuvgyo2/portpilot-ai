@@ -8,5 +8,5 @@ bcrypt==5.0.0
 python-multipart==0.0.32
 httpx==0.28.1
 pynvml==13.0.1
-pillow==11.1.0
+pillow==12.2.0
 requests==2.32.3
