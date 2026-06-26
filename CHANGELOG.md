@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- (add upcoming changes here)
+### Added
+- Unit-test coverage for the Import Wizard (`/api/importer` JSON extraction and
+  auto-fill apply), Task Flows (`_apply_tasks` normalization), and the
+  port-conflict guard (`port_in_use` + conflict status / 409-on-start).
 
 ## [0.1.3] - 2026-06-26
 
