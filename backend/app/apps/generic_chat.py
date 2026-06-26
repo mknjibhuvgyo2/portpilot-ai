@@ -30,6 +30,51 @@ def _estimate_tokens(text: str) -> int:
     return max(len(text) // 4, 0)
 
 
+def _task0_io(config: PortConfig) -> dict:
+    """Advanced I/O config for the first task (single-stage generic templates)."""
+    tasks = (config.extra or {}).get("tasks") or []
+    io = tasks[0].get("io") if tasks and isinstance(tasks[0], dict) and isinstance(tasks[0].get("io"), dict) else {}
+    return io or {}
+
+
+def _num(v):
+    if v is None or v == "":
+        return None
+    try:
+        f = float(v)
+        return int(f) if f.is_integer() else f
+    except Exception:
+        return None
+
+
+def _io_gen_params(io: dict) -> dict:
+    """Generation defaults from a task's io config, honoring the sampling mode
+    (some models reject temperature+top_p together)."""
+    p: dict = {}
+    sampling = str(io.get("sampling") or "both").strip().lower()
+    temp, top_p = _num(io.get("temperature")), _num(io.get("top_p"))
+    if temp is not None and sampling in ("both", "temperature"):
+        p["temperature"] = temp
+    if top_p is not None and sampling in ("both", "top_p"):
+        p["top_p"] = top_p
+    mt = _num(io.get("max_tokens"))
+    if mt:
+        p["max_tokens"] = int(mt)
+    return p
+
+
+def _apply_image_detail(msgs: list[ChatMessage], detail: str) -> None:
+    """Set image_url detail on parts that don't already specify one (caller wins)."""
+    d = str(detail or "").strip().lower()
+    if d not in ("high", "low", "auto"):
+        return
+    for m in msgs:
+        if isinstance(m.content, list):
+            for part in m.content:
+                if isinstance(part, dict) and part.get("type") == "image_url" and isinstance(part.get("image_url"), dict):
+                    part["image_url"].setdefault("detail", d)
+
+
 def _prompt_chars(messages: list[ChatMessage]) -> int:
     n = 0
     for m in messages:
@@ -101,8 +146,14 @@ def build_generic_chat_app(config: PortConfig) -> FastAPI:
         if config.system_prompt and not any(m.role == "system" for m in msgs):
             msgs.insert(0, ChatMessage(role="system", content=config.system_prompt))
 
-        params = {k: body.get(k) for k in ("temperature", "top_p", "max_tokens")
-                  if body.get(k) is not None}
+        # Per-task advanced I/O: task-configured generation params are defaults;
+        # values the caller sent in the request body still win. Image detail fills
+        # in image_url parts the caller didn't set.
+        io = _task0_io(config)
+        _apply_image_detail(msgs, io.get("image_detail"))
+        params = {**_io_gen_params(io),
+                  **{k: body.get(k) for k in ("temperature", "top_p", "max_tokens")
+                     if body.get(k) is not None}}
         want_stream = bool(body.get("stream", False)) and config.streaming
         router = ModelRouter(timeout=config.timeout, max_retries=config.max_retries)
 

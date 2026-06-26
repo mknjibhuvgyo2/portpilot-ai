@@ -29,7 +29,7 @@
 - **Multi-port orchestration** — register a port service, start/stop, health checks; each exposes an OpenAI-compatible endpoint.
 - **Unified model layer** — model routes (aliases) with a primary + fallback chain, guaranteed fallback text, timeout/retry, concurrency cap.
 - **Live model hot-swap** — change a running port's model / system prompt / runtime params with **no restart**.
-- **Task flow** — a port runs an ordered pipeline of independent tasks, each with its own model + prompt, each step feeding the next. Per task: **fixed** (its configured model) or **model pool** (the caller's request `model` field picks the model, optionally constrained to an allow-list). Editable in the UI and on a dedicated **Task Flows** page.
+- **Task flow** — a port runs an ordered pipeline of independent tasks, each with its own model + prompt, each step feeding the next. Per task: **fixed** (its configured model) or **model pool** (the caller's request `model` field picks the model, optionally constrained to an allow-list). Editable in the UI and on a dedicated **Task Flows** page. Each task has an expandable **Advanced (I/O format)** panel — generation params (`temperature` / `top_p` / `max_tokens` / sampling mode), input/image handling (image detail, source, video frames, force-two-stage) and output format (count, per-item chars, force-JSON); blank = template default, changes hot-swap.
 - **Reverse-proxy gateway** — `/gw/<slug>/...` forwards to the right port, with optional API-key auth.
 
 **App templates (9)**

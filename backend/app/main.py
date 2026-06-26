@@ -57,7 +57,7 @@ async def lifespan(app: FastAPI):
     manager.stop_all()
 
 
-app = FastAPI(title=settings.app_name, version="0.1.0", lifespan=lifespan)
+app = FastAPI(title=settings.app_name, version="0.1.3", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -76,7 +76,7 @@ for r in (auth_router, ports_router, models_router, monitor_router, chat_router,
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "app": settings.app_name, "version": "0.1.0"}
+    return {"status": "ok", "app": settings.app_name, "version": "0.1.3"}
 
 
 # --- Serve built frontend (single-process deployment) ---

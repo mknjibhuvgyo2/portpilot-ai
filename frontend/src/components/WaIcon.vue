@@ -43,6 +43,8 @@ const icons: Record<string, string> = {
   panelClose: '<rect x="3.5" y="4.5" width="17" height="15" rx="2.2"/><path d="M9.5 4.5v15"/><path d="M16 9l-2.6 3 2.6 3"/>',
   panelOpen: '<rect x="3.5" y="4.5" width="17" height="15" rx="2.2"/><path d="M9.5 4.5v15"/><path d="M13.4 9l2.6 3-2.6 3"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
+  'chevron-right': '<path d="M9 6l6 6-6 6"/>',
+  'chevron-down': '<path d="M6 9l6 6 6-6"/>',
 
   // ---- action / utility icons (筆 brush style) ----
   // 筆 — edit

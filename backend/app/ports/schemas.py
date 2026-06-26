@@ -18,6 +18,7 @@ class TaskItem(BaseModel):
     prompt: str = ""
     mode: str = "fixed"
     pool: list[str] = []
+    io: dict = {}  # per-task advanced I/O config (generation params, image handling, output format)
 
 
 class PortCreate(BaseModel):

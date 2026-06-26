@@ -38,12 +38,23 @@ const tabs = [
   { key: 'gateway', icon: 'shield' },
 ] as const
 
+// Per-task advanced I/O knobs (generation params / image handling / output format).
+// Empty string / null = "use the template default". For generic templates the
+// generation params + image detail take effect; output knobs apply to pipeline templates.
+const ioDefaults = () => ({
+  temperature: '', top_p: '', max_tokens: '', sampling: 'both',
+  image_detail: 'high', image_source: 'data_url', video_frames: '', force_two_stage: false,
+  fixed_n: '', msg_max_chars: '', strict_json: true,
+})
+const normIo = (io: any) => ({ ...ioDefaults(), ...(io && typeof io === 'object' ? io : {}) })
+const newTask = () => ({ name: '', alias: '', prompt: '', mode: 'fixed', pool: [] as string[], io: ioDefaults() })
+
 const blank = () => ({
   name: '', slug: '', port: 9001, app_type: 'generic_chat',
   streaming: true, concurrency: 8, timeout: 120,
   max_retries: 2, logging_enabled: true, log_keep: 10, auth_required: false, autostart: false, debug: false,
   // Task flow: ordered, independent tasks. tasks[0] is the main/first stage.
-  tasks: [{ name: '', alias: '', prompt: '', mode: 'fixed', pool: [] as string[] }],
+  tasks: [newTask()],
 })
 const form = ref(blank())
 
@@ -67,7 +78,7 @@ function onAppTypeChange() {
   const tpl = templates.value.find((t) => t.app_type === form.value.app_type)
   if (tpl && tpl.default_prompt && !form.value.tasks[0].prompt) form.value.tasks[0].prompt = tpl.default_prompt
 }
-function addTask() { form.value.tasks.push({ name: '', alias: '', prompt: '', mode: 'fixed', pool: [] }) }
+function addTask() { form.value.tasks.push(newTask()) }
 function removeTask(i: number) { if (form.value.tasks.length > 1) form.value.tasks.splice(i, 1) }
 function onTaskAlias(i: number) {
   // bottom "+ new route" option jumps to the route editor (opens create modal)
@@ -84,14 +95,17 @@ function addPoolVal(i: number, val: string) {
 }
 function addPool(i: number) { addPoolVal(i, poolDraft.value[i] || ''); poolDraft.value[i] = '' }
 function aliasesNotIn(pool: string[]) { return aliases.value.filter((a: any) => !pool.includes(a.alias)) }
+// advanced (io) panel: which task stages are expanded
+const advOpen = ref<Record<number, boolean>>({})
+function toggleAdv(i: number) { advOpen.value[i] = !advOpen.value[i] }
 
 function openCreate() { editingId.value = null; form.value = blank(); tab.value = 'basic'; err.value = ''; showForm.value = true }
 function openEdit(p: any) {
   editingId.value = p.id
   const tasks = (p.extra && Array.isArray(p.extra.tasks) && p.extra.tasks.length)
     ? p.extra.tasks.map((tk: any) => ({ name: tk.name || '', alias: tk.alias || '', prompt: tk.prompt || '',
-        mode: tk.mode === 'pool' ? 'pool' : 'fixed', pool: Array.isArray(tk.pool) ? tk.pool : [] }))
-    : [{ name: '', alias: p.model_alias || '', prompt: p.system_prompt || '', mode: 'fixed', pool: [] }]
+        mode: tk.mode === 'pool' ? 'pool' : 'fixed', pool: Array.isArray(tk.pool) ? tk.pool : [], io: normIo(tk.io) }))
+    : [{ name: '', alias: p.model_alias || '', prompt: p.system_prompt || '', mode: 'fixed', pool: [], io: ioDefaults() }]
   form.value = { ...blank(), ...p, tasks }
   form.value.debug = !!(p.extra && p.extra.debug)
   tab.value = 'basic'; err.value = ''; showForm.value = true
@@ -300,6 +314,64 @@ async function saveToLibrary() {
               </div>
               <textarea v-model="tk.prompt" rows="2" class="input font-mono text-[11px] leading-relaxed"
                 :placeholder="t('ports.taskflow.prompt')"></textarea>
+
+              <!-- advanced I/O knobs (generation params / image handling / output format) -->
+              <button class="flex w-full items-center gap-1 text-[11px] font-medium text-steel-500 hover:text-accent-600 dark:text-steel-400"
+                @click="toggleAdv(i)">
+                <WaIcon :name="advOpen[i] ? 'chevron-down' : 'chevron-right'" :size="12" />
+                {{ t('ports.taskflow.adv') }}
+                <span class="text-steel-400">· {{ t('ports.taskflow.advHint') }}</span>
+              </button>
+              <div v-if="advOpen[i]" class="space-y-3 rounded-md border border-steel-200/70 bg-steel-500/5 p-2.5 dark:border-steel-800">
+                <!-- generation params -->
+                <div>
+                  <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-steel-400">{{ t('ports.taskflow.advGen') }}</p>
+                  <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    <label class="block"><span class="block text-[10px] text-steel-400">temperature</span>
+                      <input v-model="tk.io.temperature" type="number" step="0.1" min="0" max="2" class="input !py-1 text-xs" placeholder="—" /></label>
+                    <label class="block"><span class="block text-[10px] text-steel-400">top_p</span>
+                      <input v-model="tk.io.top_p" type="number" step="0.05" min="0" max="1" class="input !py-1 text-xs" placeholder="—" /></label>
+                    <label class="block"><span class="block text-[10px] text-steel-400">max_tokens</span>
+                      <input v-model="tk.io.max_tokens" type="number" step="1" min="1" class="input !py-1 text-xs" placeholder="—" /></label>
+                    <label class="block"><span class="block text-[10px] text-steel-400">{{ t('ports.taskflow.advSampling') }}</span>
+                      <select v-model="tk.io.sampling" class="input !py-1 text-xs">
+                        <option value="both">temp+top_p</option>
+                        <option value="temperature">temperature</option>
+                        <option value="top_p">top_p</option>
+                      </select></label>
+                  </div>
+                </div>
+                <!-- input / image -->
+                <div>
+                  <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-steel-400">{{ t('ports.taskflow.advInput') }}</p>
+                  <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    <label class="block"><span class="block text-[10px] text-steel-400">{{ t('ports.taskflow.advDetail') }}</span>
+                      <select v-model="tk.io.image_detail" class="input !py-1 text-xs">
+                        <option value="high">high</option><option value="low">low</option><option value="auto">auto</option>
+                      </select></label>
+                    <label class="block"><span class="block text-[10px] text-steel-400">{{ t('ports.taskflow.advImgSrc') }}</span>
+                      <select v-model="tk.io.image_source" class="input !py-1 text-xs">
+                        <option value="data_url">data_url</option><option value="remote_url">remote_url</option>
+                      </select></label>
+                    <label class="block"><span class="block text-[10px] text-steel-400">{{ t('ports.taskflow.advFrames') }}</span>
+                      <input v-model="tk.io.video_frames" type="number" step="1" min="1" class="input !py-1 text-xs" placeholder="6" /></label>
+                    <label class="flex items-center gap-1.5 pt-4 text-[11px]">
+                      <input v-model="tk.io.force_two_stage" type="checkbox" class="accent-accent-500" />{{ t('ports.taskflow.advTwoStage') }}</label>
+                  </div>
+                </div>
+                <!-- output format -->
+                <div>
+                  <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-steel-400">{{ t('ports.taskflow.advOutput') }}</p>
+                  <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    <label class="block"><span class="block text-[10px] text-steel-400">{{ t('ports.taskflow.advFixedN') }}</span>
+                      <input v-model="tk.io.fixed_n" type="number" step="1" min="1" class="input !py-1 text-xs" placeholder="—" /></label>
+                    <label class="block"><span class="block text-[10px] text-steel-400">{{ t('ports.taskflow.advMaxChars') }}</span>
+                      <input v-model="tk.io.msg_max_chars" type="number" step="1" min="1" class="input !py-1 text-xs" placeholder="—" /></label>
+                    <label class="flex items-center gap-1.5 pt-4 text-[11px]">
+                      <input v-model="tk.io.strict_json" type="checkbox" class="accent-accent-500" />{{ t('ports.taskflow.advStrictJson') }}</label>
+                  </div>
+                </div>
+              </div>
             </div>
             <button class="btn-ghost" @click="addTask"><WaIcon name="plus" :size="14" />{{ t('ports.taskflow.add') }}</button>
           </div>

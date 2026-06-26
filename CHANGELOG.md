@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - (add upcoming changes here)
 
+## [0.1.3] - 2026-06-26
+
+### Added
+- **Per-task advanced I/O controls** on each task-flow stage — an expandable
+  "Advanced (I/O format)" panel storing its config in `extra.tasks[i].io`:
+  - **Generation**: `temperature` / `top_p` / `max_tokens` / sampling mode
+    (`both` / `temperature` / `top_p`, for models that reject temp+top_p together).
+  - **Input / image**: image detail (`high` / `low` / `auto`), image source,
+    video frame count, force-two-stage.
+  - **Output format**: output count, per-item char limit, force-JSON.
+  - Blank field = use the template default. For generic templates the generation
+    params and image detail take effect (task config is the default; values the
+    caller sends in the request body still win); output-format knobs are honored
+    by pipeline templates. All changes hot-swap (no restart).
+
 ## [0.1.2] - 2026-06-08
 
 ### Changed
