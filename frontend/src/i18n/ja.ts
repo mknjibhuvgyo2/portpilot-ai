@@ -88,6 +88,12 @@ export const ja = {
     importFile: 'ファイルから読込', exportTxt: '.txt 書出', exportJson: '.json 書出',
     promptLibrary: 'プロンプトライブラリ', loadLibrary: '読込', saveAs: '名前を付けて保存…', saveAsName: 'ファイル名',
     libraryEmpty: 'ライブラリは空です', saved: '保存しました', logsTitle: 'ログ', noLogs: 'ログなし',
+    ioFormat: {
+      title: 'デフォルト入力 / 出力フォーマット',
+      hint: 'このポートの入出力フォーマットはプロンプトで決まります——上のプロンプトを編集すれば出力構造が変わります。以下は現在のテンプレートのデフォルト契約（参照用）です。',
+      endpoints: 'エンドポイント', input: '入力例', output: '出力例',
+      defaultPrompt: '完全なデフォルトプロンプト', useDefault: 'デフォルトプロンプトで上書き',
+    },
   },
   models: {
     title: 'モデル / プロバイダ', providersTab: 'プロバイダ / エンドポイント', aliasesTab: 'モデルルート',

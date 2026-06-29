@@ -87,6 +87,12 @@ export const zh = {
     importFile: '从文件导入', exportTxt: '导出 .txt', exportJson: '导出 .json',
     promptLibrary: '提示词库', loadLibrary: '载入', saveAs: '另存为…', saveAsName: '文件名',
     libraryEmpty: '提示词库为空', saved: '已保存', logsTitle: '日志', noLogs: '暂无日志',
+    ioFormat: {
+      title: '默认输入 / 输出格式',
+      hint: '该端口的输入/输出格式由提示词决定——修改上方提示词即可改变输出结构。下面是当前模板的默认契约，仅供查看。',
+      endpoints: '接口', input: '输入示例', output: '输出示例',
+      defaultPrompt: '完整默认提示词', useDefault: '用默认提示词覆盖',
+    },
   },
   models: {
     title: '模型与厂商', providersTab: '厂商 / 端点', aliasesTab: '模型路由',

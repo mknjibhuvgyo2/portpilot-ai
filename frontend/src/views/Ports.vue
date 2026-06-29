@@ -99,6 +99,18 @@ function aliasesNotIn(pool: string[]) { return aliases.value.filter((a: any) => 
 const advOpen = ref<Record<number, boolean>>({})
 function toggleAdv(i: number) { advOpen.value[i] = !advOpen.value[i] }
 
+// Default input/output format viewer (read-only): the request/response contract
+// declared by the selected template. The output shape is decided by the prompt,
+// so this is documentation surfaced next to the prompt editor.
+const currentTpl = computed(() => templates.value.find((tp: any) => tp.app_type === form.value.app_type) || null)
+const currentIo = computed(() => currentTpl.value?.io_format || null)
+const showIoFormat = ref(false)
+const showDefaultPrompt = ref(false)
+function pretty(v: any): string {
+  if (v == null) return ''
+  return typeof v === 'string' ? v : JSON.stringify(v, null, 2)
+}
+
 function openCreate() { editingId.value = null; form.value = blank(); tab.value = 'basic'; err.value = ''; showForm.value = true }
 function openEdit(p: any) {
   editingId.value = p.id
@@ -397,6 +409,55 @@ async function saveToLibrary() {
             <textarea v-model="form.tasks[0].prompt" rows="12" class="input font-mono text-xs leading-relaxed"
               :placeholder="t('ports.systemPrompt')"></textarea>
             <p v-if="saveMsg" class="text-xs text-matcha-600">{{ saveMsg }}</p>
+
+            <!-- default input/output format (read-only; the format is decided by the prompt) -->
+            <div v-if="currentIo" class="rounded-xl border border-steel-200/70 dark:border-steel-800">
+              <button type="button" class="flex w-full items-center gap-2 px-3 py-2.5 text-left"
+                @click="showIoFormat = !showIoFormat">
+                <WaIcon name="file" :size="14" class="text-ai-700 dark:text-kin-400" />
+                <span class="text-xs font-medium text-steel-600 dark:text-steel-300">{{ t('ports.ioFormat.title') }}</span>
+                <WaIcon :name="showIoFormat ? 'chevron-down' : 'chevron-right'" :size="14" class="ml-auto text-steel-400" />
+              </button>
+              <div v-show="showIoFormat" class="space-y-3 border-t border-steel-200/70 px-3 py-3 dark:border-steel-800">
+                <p class="flex items-start gap-1.5 text-[11px] leading-relaxed text-steel-400">
+                  <WaIcon name="spark" :size="13" class="mt-0.5 shrink-0" />{{ t('ports.ioFormat.hint') }}
+                </p>
+                <div v-if="currentIo.endpoints?.length">
+                  <div class="label">{{ t('ports.ioFormat.endpoints') }}</div>
+                  <div class="flex flex-wrap gap-1.5">
+                    <span v-for="ep in currentIo.endpoints" :key="ep"
+                      class="chip bg-accent-500/10 font-mono text-accent-700 dark:text-accent-300">{{ ep }}</span>
+                  </div>
+                </div>
+                <div v-if="currentIo.input">
+                  <div class="label">{{ t('ports.ioFormat.input') }}</div>
+                  <p v-if="currentIo.input.fields" class="mb-1 text-[11px] leading-relaxed text-steel-500">{{ currentIo.input.fields }}</p>
+                  <pre v-if="currentIo.input.example !== undefined" class="overflow-x-auto rounded-lg bg-steel-100/70 p-2.5 font-mono text-[11px] leading-relaxed text-steel-600 dark:bg-steel-800/50 dark:text-steel-300">{{ pretty(currentIo.input.example) }}</pre>
+                </div>
+                <div v-if="currentIo.output">
+                  <div class="label">{{ t('ports.ioFormat.output') }}</div>
+                  <pre v-if="currentIo.output.example !== undefined" class="overflow-x-auto rounded-lg bg-steel-100/70 p-2.5 font-mono text-[11px] leading-relaxed text-steel-600 dark:bg-steel-800/50 dark:text-steel-300">{{ pretty(currentIo.output.example) }}</pre>
+                  <pre v-else-if="currentIo.output.schema" class="overflow-x-auto rounded-lg bg-steel-100/70 p-2.5 font-mono text-[11px] leading-relaxed text-steel-600 dark:bg-steel-800/50 dark:text-steel-300">{{ currentIo.output.schema }}</pre>
+                  <p v-if="currentIo.output.note" class="mt-1 text-[11px] leading-relaxed text-kin-700 dark:text-kin-400">{{ currentIo.output.note }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- this template's complete default prompt (read-only reference) -->
+            <div v-if="currentTpl && currentTpl.default_prompt" class="rounded-xl border border-steel-200/70 dark:border-steel-800">
+              <button type="button" class="flex w-full items-center gap-2 px-3 py-2.5 text-left"
+                @click="showDefaultPrompt = !showDefaultPrompt">
+                <WaIcon name="file" :size="14" class="text-ai-700 dark:text-kin-400" />
+                <span class="text-xs font-medium text-steel-600 dark:text-steel-300">{{ t('ports.ioFormat.defaultPrompt') }}</span>
+                <WaIcon :name="showDefaultPrompt ? 'chevron-down' : 'chevron-right'" :size="14" class="ml-auto text-steel-400" />
+              </button>
+              <div v-show="showDefaultPrompt" class="border-t border-steel-200/70 px-3 py-3 dark:border-steel-800">
+                <pre class="max-h-72 overflow-auto whitespace-pre-wrap rounded-lg bg-steel-100/70 p-2.5 font-mono text-[11px] leading-relaxed text-steel-600 dark:bg-steel-800/50 dark:text-steel-300">{{ currentTpl.default_prompt }}</pre>
+                <button type="button" class="btn-ghost mt-2" @click="form.tasks[0].prompt = currentTpl.default_prompt">
+                  <WaIcon name="download" :size="13" />{{ t('ports.ioFormat.useDefault') }}
+                </button>
+              </div>
+            </div>
           </div>
 
           <!-- runtime -->

@@ -28,7 +28,7 @@ def get_template(app_type: str) -> AppTemplate | None:
 def list_templates() -> list[dict]:
     return [
         {"app_type": t.app_type, "title": t.title, "description": t.description,
-         "default_prompt": t.default_prompt}
+         "default_prompt": t.default_prompt, "io_format": t.io_format}
         for t in _TEMPLATES.values()
     ]
 

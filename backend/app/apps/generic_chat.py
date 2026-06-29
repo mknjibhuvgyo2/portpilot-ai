@@ -277,6 +277,23 @@ class GenericChatTemplate(AppTemplate):
     app_type = "generic_chat"
     title = "通用聊天 / 评分"
     description = "OpenAI 兼容的通用对话端点，注入系统提示词，支持图像输入与流式输出。"
+    # Shared by every OpenAI-compatible chat template (scoring/translate/vision/...).
+    io_format = {
+        "endpoints": ["POST /v1/chat/completions", "GET /v1/models", "GET /info", "GET /health"],
+        "input": {
+            "example": {"model": "（端口的别名，可省略）", "stream": False,
+                        "messages": [{"role": "user", "content": "你好"}],
+                        "temperature": 0.7, "max_tokens": 1024},
+            "fields": "标准 OpenAI Chat Completions 请求；端口的系统提示词会自动注入到 messages[0]。",
+        },
+        "output": {
+            "example": {"id": "chatcmpl-…", "object": "chat.completion", "model": "…",
+                        "choices": [{"index": 0, "message": {"role": "assistant", "content": "…"},
+                                     "finish_reason": "stop"}],
+                        "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}},
+            "note": "stream=true 时返回 SSE chunk；回答内容/风格由系统提示词决定。",
+        },
+    }
 
     def build_app(self, config: PortConfig):
         return build_generic_chat_app(config)

@@ -114,6 +114,15 @@ class PassthroughTemplate(AppTemplate):
     description = ("透明转发完整 OpenAI 请求体到上游模型（保留 tools/函数调用、JSON 模式、"
                    "seed、stop 等全部参数），不注入系统提示词。仍走别名的 fallback / 负载均衡。")
     default_prompt = ""
+    io_format = {
+        "endpoints": ["POST /v1/chat/completions", "GET /health"],
+        "input": {"example": {"model": "（端口别名，可省略）",
+                              "messages": [{"role": "user", "content": "你好"}],
+                              "tools": "…", "response_format": {"type": "json_object"}, "seed": 42},
+                  "fields": "完整 OpenAI 请求体原样透传——tools/函数调用、JSON 模式、seed、stop、n、logprobs 等全部保留。"},
+        "output": {"example": "（上游模型的原始响应，JSON 或流式 SSE，逐字透传）",
+                   "note": "不注入系统提示词，不改写请求/响应；格式完全由上游模型与调用方请求决定。"},
+    }
 
     def build_app(self, config: PortConfig):
         return build_passthrough_app(config)

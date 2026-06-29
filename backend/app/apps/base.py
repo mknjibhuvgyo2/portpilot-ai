@@ -42,6 +42,13 @@ class AppTemplate(abc.ABC):
     # Suggested system prompt the frontend pre-fills when this template is picked
     # (only if the user hasn't typed one). Empty = no suggestion.
     default_prompt: str = ""
+    # Optional human-readable declaration of this template's request/response
+    # contract, surfaced read-only in the UI ("默认输入/输出格式"). The actual
+    # output shape is decided by the prompt, so this is documentation, not config.
+    # Shape: {"endpoints": [str, ...],
+    #         "input":  {"example": <obj> | "fields": str, ...},
+    #         "output": {"example": <obj> | "schema": str, "note": str}}
+    io_format: dict[str, Any] | None = None
 
     @abc.abstractmethod
     def build_app(self, config: PortConfig):

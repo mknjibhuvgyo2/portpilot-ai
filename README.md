@@ -54,6 +54,7 @@
 - **Auto DB migration** — older databases get new columns added on startup.
 - **Port-conflict guard** — a port already taken by another process shows *in use* and can't be started.
 - **Verbose debug log** — per-port toggle that records the full (untruncated) request / response / error for deep inspection.
+- **Default I/O format viewer** — the prompt menu in the port editor shows the template's endpoints, input/output JSON examples and the full default prompt (read-only), noting that the output format is decided by the prompt; one-click apply the default prompt.
 
 **PromptLab**
 - Give input→output examples (images supported) and **infer a system prompt**; pick constraints, test reproduction, save to the prompt library, one-click apply to a port.

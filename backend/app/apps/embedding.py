@@ -100,6 +100,15 @@ class EmbeddingTemplate(AppTemplate):
     title = "向量化 / Embedding"
     description = "OpenAI 兼容的 /v1/embeddings 端点，用于文本向量化（RAG）。需绑定 embedding 模型。"
     default_prompt = ""
+    io_format = {
+        "endpoints": ["POST /v1/embeddings", "GET /info", "GET /health"],
+        "input": {"example": {"model": "（端口别名，可省略）", "input": ["要向量化的文本1", "文本2"]},
+                  "fields": "标准 OpenAI Embeddings 请求；input 支持字符串或字符串数组。"},
+        "output": {"example": {"object": "list", "model": "…",
+                               "data": [{"object": "embedding", "index": 0, "embedding": [0.01, 0.02]}],
+                               "usage": {"prompt_tokens": 0, "total_tokens": 0}},
+                   "note": "本模板不使用提示词；输出维度由绑定的 embedding 模型决定。"},
+    }
 
     def build_app(self, config: PortConfig):
         return build_embedding_app(config)

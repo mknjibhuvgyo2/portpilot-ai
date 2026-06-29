@@ -116,6 +116,16 @@ class RerankTemplate(AppTemplate):
     title = "重排序 / Rerank"
     description = "Jina/Cohere 兼容的 /v1/rerank 端点，按相关性给文档打分排序（RAG 检索后精排）。需绑定 reranker 模型。"
     default_prompt = ""
+    io_format = {
+        "endpoints": ["POST /v1/rerank", "GET /info", "GET /health"],
+        "input": {"example": {"model": "（端口别名，可省略）", "query": "查询语句",
+                              "documents": ["文档1", "文档2", "文档3"], "top_n": 3},
+                  "fields": "Jina/Cohere 兼容 rerank 请求。"},
+        "output": {"example": {"object": "list", "model": "…", "results": [
+            {"index": 0, "relevance_score": 0.97}, {"index": 2, "relevance_score": 0.41}],
+            "usage": {"prompt_tokens": 0, "total_tokens": 0}},
+            "note": "本模板不使用提示词；相关性分数由绑定的 reranker 模型决定。"},
+    }
 
     def build_app(self, config: PortConfig):
         return build_rerank_app(config)

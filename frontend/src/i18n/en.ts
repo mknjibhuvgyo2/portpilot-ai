@@ -88,6 +88,12 @@ export const en = {
     importFile: 'Import file', exportTxt: 'Export .txt', exportJson: 'Export .json',
     promptLibrary: 'Prompt library', loadLibrary: 'Load', saveAs: 'Save as…', saveAsName: 'File name',
     libraryEmpty: 'Prompt library is empty', saved: 'Saved', logsTitle: 'Logs', noLogs: 'No logs',
+    ioFormat: {
+      title: 'Default input / output format',
+      hint: "This port's input/output format is decided by the prompt — edit the prompt above to change the output shape. Below is the current template's default contract, for reference only.",
+      endpoints: 'Endpoints', input: 'Input example', output: 'Output example',
+      defaultPrompt: 'Full default prompt', useDefault: 'Use default prompt',
+    },
   },
   models: {
     title: 'Models & Providers', providersTab: 'Providers', aliasesTab: 'Model Routes',
