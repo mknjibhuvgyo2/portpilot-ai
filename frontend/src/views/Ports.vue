@@ -20,7 +20,7 @@ const aliases = ref<any[]>([])
 const promptFiles = ref<any[]>([])
 const showForm = ref(false)
 const editingId = ref<number | null>(null)
-const tab = ref<'basic' | 'model' | 'prompt' | 'runtime' | 'gateway'>('basic')
+const tab = ref<'basic' | 'model' | 'prompt' | 'routes' | 'runtime' | 'gateway'>('basic')
 const logsFor = ref<any | null>(null)
 const logs = ref<any[]>([])
 const err = ref('')
@@ -34,6 +34,7 @@ const tabs = [
   { key: 'basic', icon: 'ports' },
   { key: 'model', icon: 'models' },
   { key: 'prompt', icon: 'file' },
+  { key: 'routes', icon: 'network' },
   { key: 'runtime', icon: 'sliders' },
   { key: 'gateway', icon: 'shield' },
 ] as const
@@ -55,6 +56,8 @@ const blank = () => ({
   max_retries: 2, logging_enabled: true, log_keep: 10, auth_required: false, autostart: false, debug: false,
   // Task flow: ordered, independent tasks. tasks[0] is the main/first stage.
   tasks: [newTask()],
+  // Modular endpoint routes (empty = template's native default paths).
+  routes: [] as Array<{ path: string; handler: string; enabled: boolean; description: string }>,
 })
 const form = ref(blank())
 
@@ -73,11 +76,7 @@ onMounted(async () => {
   }
 })
 
-function onAppTypeChange() {
-  // prefill the template's suggested prompt onto the first task if empty
-  const tpl = templates.value.find((t) => t.app_type === form.value.app_type)
-  if (tpl && tpl.default_prompt && !form.value.tasks[0].prompt) form.value.tasks[0].prompt = tpl.default_prompt
-}
+function onAppTypeChange() { ensureStages(true); resetRoutes() }  // new template -> per-stage prompts + native route defaults
 function addTask() { form.value.tasks.push(newTask()) }
 function removeTask(i: number) { if (form.value.tasks.length > 1) form.value.tasks.splice(i, 1) }
 function onTaskAlias(i: number) {
@@ -105,13 +104,40 @@ function toggleAdv(i: number) { advOpen.value[i] = !advOpen.value[i] }
 const currentTpl = computed(() => templates.value.find((tp: any) => tp.app_type === form.value.app_type) || null)
 const currentIo = computed(() => currentTpl.value?.io_format || null)
 const showIoFormat = ref(false)
-const showDefaultPrompt = ref(false)
+const showStageDefault = ref<Record<number, boolean>>({})
 function pretty(v: any): string {
   if (v == null) return ''
   return typeof v === 'string' ? v : JSON.stringify(v, null, 2)
 }
+// Per-stage prompt editing: every pipeline stage this template runs, each with its
+// complete default prompt (so the prompt menu can show/edit every step, not just #0).
+function stagesOf(): Array<{ name: string; default_prompt: string; description?: string }> {
+  return (currentTpl.value?.stages as any[]) || []
+}
+function ensureStages(fillDefaults = false) {
+  const st = stagesOf()
+  while (form.value.tasks.length < st.length) form.value.tasks.push(newTask())
+  st.forEach((s, i) => {
+    if (!form.value.tasks[i].name) form.value.tasks[i].name = s.name
+    if (fillDefaults && !form.value.tasks[i].prompt) form.value.tasks[i].prompt = s.default_prompt || ''
+  })
+}
+// Modular endpoint routing: template declares built-in handlers (currentTpl.routes);
+// each port maps public paths -> handlers, editable like the task flow.
+function templateRoutes(): Array<{ handler: string; method: string; path: string; description?: string; main?: boolean }> {
+  return (currentTpl.value?.routes as any[]) || []
+}
+function defaultRouteRows() {
+  return templateRoutes().map((r) => ({ path: r.path, handler: r.handler, enabled: true, description: r.description || '' }))
+}
+function resetRoutes() { form.value.routes = defaultRouteRows() }
+function addRoute() {
+  const first = templateRoutes()[0]
+  form.value.routes.push({ path: '', handler: first ? first.handler : '', enabled: true, description: '' })
+}
+function removeRoute(i: number) { form.value.routes.splice(i, 1) }
 
-function openCreate() { editingId.value = null; form.value = blank(); tab.value = 'basic'; err.value = ''; showForm.value = true }
+function openCreate() { editingId.value = null; form.value = blank(); ensureStages(false); resetRoutes(); tab.value = 'basic'; err.value = ''; showForm.value = true }
 function openEdit(p: any) {
   editingId.value = p.id
   const tasks = (p.extra && Array.isArray(p.extra.tasks) && p.extra.tasks.length)
@@ -120,6 +146,11 @@ function openEdit(p: any) {
     : [{ name: '', alias: p.model_alias || '', prompt: p.system_prompt || '', mode: 'fixed', pool: [], io: ioDefaults() }]
   form.value = { ...blank(), ...p, tasks }
   form.value.debug = !!(p.extra && p.extra.debug)
+  form.value.routes = (p.extra && Array.isArray(p.extra.routes) && p.extra.routes.length)
+    ? p.extra.routes.map((r: any) => ({ path: r.path || '', handler: r.handler || '',
+        enabled: r.enabled !== false, description: r.description || '' }))
+    : defaultRouteRows()
+  ensureStages(false)
   tab.value = 'basic'; err.value = ''; showForm.value = true
 }
 function closeForm() { showForm.value = false; if (route.query.edit) router.replace({ path: '/ports' }) }
@@ -128,10 +159,10 @@ async function save() {
   err.value = ''
   try {
     if (editingId.value) {
-      const { name, tasks, streaming, concurrency, timeout,
+      const { name, tasks, routes, streaming, concurrency, timeout,
         max_retries, logging_enabled, log_keep, auth_required, autostart, debug } = form.value
       const { data } = await api.patch(`/api/ports/${editingId.value}`, {
-        name, tasks, streaming, concurrency, timeout,
+        name, tasks, routes, streaming, concurrency, timeout,
         max_retries, logging_enabled, log_keep, auth_required, autostart, debug,
       })
       if (data?.hot_swapped) showToast(t('ports.hotSwapped'))
@@ -324,8 +355,15 @@ async function saveToLibrary() {
                     @click="addPoolVal(i, a.alias)">+ {{ a.alias }}</button>
                 </div>
               </div>
-              <textarea v-model="tk.prompt" rows="2" class="input font-mono text-[11px] leading-relaxed"
-                :placeholder="t('ports.taskflow.prompt')"></textarea>
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] text-steel-400">{{ t('ports.taskflow.prompt') }}</span>
+                <button v-if="stagesOf()[i] && stagesOf()[i].default_prompt" type="button"
+                  class="btn-ghost ml-auto !py-0.5 text-[11px]" @click="tk.prompt = stagesOf()[i].default_prompt">
+                  <WaIcon name="download" :size="12" />{{ t('ports.ioFormat.useDefault') }}
+                </button>
+              </div>
+              <textarea v-model="tk.prompt" rows="8" class="input font-mono text-[11px] leading-relaxed"
+                :placeholder="(stagesOf()[i] && stagesOf()[i].default_prompt) || t('ports.taskflow.prompt')"></textarea>
 
               <!-- advanced I/O knobs (generation params / image handling / output format) -->
               <button class="flex w-full items-center gap-1 text-[11px] font-medium text-steel-500 hover:text-accent-600 dark:text-steel-400"
@@ -406,8 +444,25 @@ async function saveToLibrary() {
                 <button class="btn-ghost" @click="saveToLibrary"><WaIcon name="save" :size="14" />{{ t('ports.saveAs') }}</button>
               </div>
             </div>
-            <textarea v-model="form.tasks[0].prompt" rows="12" class="input font-mono text-xs leading-relaxed"
-              :placeholder="t('ports.systemPrompt')"></textarea>
+            <!-- one full editor per pipeline stage; placeholder shows the stage's complete default -->
+            <div v-for="(s, i) in stagesOf()" :key="i" v-show="form.tasks[i]" class="space-y-1.5">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="chip bg-accent-500/12 text-accent-600 dark:text-accent-300">{{ t('ports.taskflow.stage') }} {{ i + 1 }}</span>
+                <span class="text-xs font-medium text-steel-600 dark:text-steel-300">{{ s.name || (form.tasks[i] && form.tasks[i].name) }}</span>
+                <span v-if="s.description" class="text-[11px] text-steel-400">{{ s.description }}</span>
+                <div v-if="s.default_prompt" class="ml-auto flex items-center gap-1">
+                  <button type="button" class="btn-ghost" @click="showStageDefault[i] = !showStageDefault[i]">
+                    <WaIcon name="file" :size="13" />{{ t('ports.ioFormat.defaultPrompt') }}
+                  </button>
+                  <button type="button" class="btn-ghost" @click="form.tasks[i].prompt = s.default_prompt">
+                    <WaIcon name="download" :size="13" />{{ t('ports.ioFormat.useDefault') }}
+                  </button>
+                </div>
+              </div>
+              <textarea v-if="form.tasks[i]" v-model="form.tasks[i].prompt" rows="12" class="input font-mono text-xs leading-relaxed"
+                :placeholder="s.default_prompt || t('ports.systemPrompt')"></textarea>
+              <pre v-show="showStageDefault[i]" class="max-h-72 overflow-auto whitespace-pre-wrap rounded-lg bg-steel-100/70 p-2.5 font-mono text-[11px] leading-relaxed text-steel-600 dark:bg-steel-800/50 dark:text-steel-300">{{ s.default_prompt }}</pre>
+            </div>
             <p v-if="saveMsg" class="text-xs text-matcha-600">{{ saveMsg }}</p>
 
             <!-- default input/output format (read-only; the format is decided by the prompt) -->
@@ -443,21 +498,37 @@ async function saveToLibrary() {
               </div>
             </div>
 
-            <!-- this template's complete default prompt (read-only reference) -->
-            <div v-if="currentTpl && currentTpl.default_prompt" class="rounded-xl border border-steel-200/70 dark:border-steel-800">
-              <button type="button" class="flex w-full items-center gap-2 px-3 py-2.5 text-left"
-                @click="showDefaultPrompt = !showDefaultPrompt">
-                <WaIcon name="file" :size="14" class="text-ai-700 dark:text-kin-400" />
-                <span class="text-xs font-medium text-steel-600 dark:text-steel-300">{{ t('ports.ioFormat.defaultPrompt') }}</span>
-                <WaIcon :name="showDefaultPrompt ? 'chevron-down' : 'chevron-right'" :size="14" class="ml-auto text-steel-400" />
-              </button>
-              <div v-show="showDefaultPrompt" class="border-t border-steel-200/70 px-3 py-3 dark:border-steel-800">
-                <pre class="max-h-72 overflow-auto whitespace-pre-wrap rounded-lg bg-steel-100/70 p-2.5 font-mono text-[11px] leading-relaxed text-steel-600 dark:bg-steel-800/50 dark:text-steel-300">{{ currentTpl.default_prompt }}</pre>
-                <button type="button" class="btn-ghost mt-2" @click="form.tasks[0].prompt = currentTpl.default_prompt">
-                  <WaIcon name="download" :size="13" />{{ t('ports.ioFormat.useDefault') }}
-                </button>
-              </div>
+          </div>
+
+          <!-- routes: modular endpoints (path + handler + enabled + description), like the task flow -->
+          <div v-show="tab === 'routes'" class="space-y-3">
+            <p class="text-xs leading-relaxed text-steel-400">{{ t('ports.routes.hint') }}</p>
+            <div v-if="!templateRoutes().length" class="rounded-lg border border-steel-200/70 p-3 text-xs text-steel-400 dark:border-steel-800">
+              {{ t('ports.routes.generic') }}
             </div>
+            <template v-else>
+              <div v-for="(r, i) in form.routes" :key="i"
+                class="space-y-2 rounded-lg border border-steel-200/70 p-3 dark:border-steel-800">
+                <div class="flex flex-wrap items-center gap-2">
+                  <label class="flex items-center gap-1.5 text-[11px]">
+                    <input v-model="r.enabled" type="checkbox" class="accent-accent-500" />{{ t('ports.routes.enabled') }}
+                  </label>
+                  <select v-model="r.handler" class="input !w-48 !py-1.5 text-xs">
+                    <option v-for="h in templateRoutes()" :key="h.handler" :value="h.handler">{{ h.method }} · {{ h.handler }}</option>
+                  </select>
+                  <input v-model="r.path" class="input !py-1.5 font-mono text-xs" :placeholder="t('ports.routes.pathPh')" />
+                  <button v-if="form.routes.length > 1" class="btn-ghost !px-2 text-aka-500" @click="removeRoute(i)"><WaIcon name="trash" :size="14" /></button>
+                </div>
+                <input v-model="r.description" class="input !py-1.5 text-xs" :placeholder="t('ports.routes.descPh')" />
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="btn-ghost" @click="addRoute"><WaIcon name="plus" :size="14" />{{ t('ports.routes.add') }}</button>
+                <button class="btn-ghost" @click="resetRoutes"><WaIcon name="download" :size="14" />{{ t('ports.routes.reset') }}</button>
+              </div>
+              <p class="flex items-start gap-1.5 rounded-lg border border-aka-400/40 bg-aka-500/5 p-2.5 text-[11px] leading-relaxed text-aka-700 dark:text-aka-300">
+                <WaIcon name="spark" :size="13" class="mt-0.5 shrink-0" />{{ t('ports.routes.vtWarn') }}
+              </p>
+            </template>
           </div>
 
           <!-- runtime -->

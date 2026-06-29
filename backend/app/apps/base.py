@@ -49,6 +49,16 @@ class AppTemplate(abc.ABC):
     #         "input":  {"example": <obj> | "fields": str, ...},
     #         "output": {"example": <obj> | "schema": str, "note": str}}
     io_format: dict[str, Any] | None = None
+    # Per-stage prompt declaration for the task-flow editor: one entry per pipeline
+    # stage this template runs, each with its complete default prompt so the UI can
+    # show/edit every step (not just stage 0). Index matches stage_prompt(config, i).
+    # Shape: [{"name": str, "default_prompt": str, "description": str?}]
+    stages: list[dict[str, Any]] | None = None
+    # Built-in endpoint handlers this template can serve (modular routing). Static
+    # metadata for the route editor; actual mounting reads config.extra["routes"]
+    # and falls back to these native paths. Shape: [{handler, method, path,
+    # description, main}]. None = the frontend derives paths from io_format only.
+    routes: list[dict[str, Any]] | None = None
 
     @abc.abstractmethod
     def build_app(self, config: PortConfig):

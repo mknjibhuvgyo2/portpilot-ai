@@ -8,13 +8,16 @@ import { useAuthStore } from '../stores/auth'
 const { t } = useI18n()
 const auth = useAuthStore()
 const ports = ref<any[]>([])
+const templates = ref<Record<string, any>>({})
 const edits = ref<Record<number, { slug: string; path_alias: string; busy?: boolean; msg?: string }>>({})
 const copied = ref('')
 
 const ENDPOINT_BY_TYPE: Record<string, string> = { embedding: '/v1/embeddings', rerank: '/v1/rerank' }
 
 async function load() {
-  ports.value = (await api.get('/api/ports')).data
+  const [pr, tpls] = await Promise.all([api.get('/api/ports'), api.get('/api/ports/templates')])
+  ports.value = pr.data
+  templates.value = Object.fromEntries((tpls.data || []).map((t: any) => [t.app_type, t]))
   for (const p of ports.value) edits.value[p.id] = { slug: p.slug, path_alias: p.path_alias || '' }
 }
 onMounted(load)
@@ -23,10 +26,28 @@ const origin = computed(() => `${location.protocol}//${location.hostname}`)
 function gwBase(p: any) { return `${location.protocol}//${location.host}/gw/${p.slug}` }
 function directBase(p: any) { return `${origin.value}:${p.port}` }
 
-// every callable path a port exposes (the "/xxxxx" after host:port)
-function pathsOf(p: any): { path: string; main?: boolean; custom?: boolean }[] {
+// every callable path a port exposes (the "/xxxxx" after host:port).
+// Prefers the port's configured routes, then the template's native route defaults,
+// then the generic OpenAI-compatible fallback for templates without route metadata.
+function pathsOf(p: any): { path: string; main?: boolean; custom?: boolean; desc?: string; disabled?: boolean }[] {
+  const tpl = templates.value[p.app_type]
+  const configured = p.extra && Array.isArray(p.extra.routes) && p.extra.routes.length ? p.extra.routes : null
+  const tplRoutes = tpl && Array.isArray(tpl.routes) ? tpl.routes : null
+  if (configured || tplRoutes) {
+    const descByHandler: Record<string, string> = {}
+    for (const r of (tplRoutes || [])) descByHandler[r.handler] = r.description || ''
+    const src = configured || tplRoutes
+    return src.map((r: any) => ({
+      path: r.path,
+      main: !!(tplRoutes && tplRoutes.find((t: any) => t.handler === r.handler && t.main)),
+      custom: !!configured,
+      disabled: configured ? r.enabled === false : false,
+      desc: r.description || descByHandler[r.handler] || '',
+    }))
+  }
+  // generic OpenAI-compatible templates (no route metadata)
   const main = ENDPOINT_BY_TYPE[p.app_type] || '/v1/chat/completions'
-  const list: { path: string; main?: boolean; custom?: boolean }[] = [{ path: main, main: true }]
+  const list: { path: string; main?: boolean; custom?: boolean; desc?: string }[] = [{ path: main, main: true }]
   if (p.path_alias) list.push({ path: p.path_alias, custom: true })
   list.push({ path: '/v1/models' }, { path: '/health' }, { path: '/info' })
   return list
@@ -107,9 +128,13 @@ async function restart(p: any) {
           <tbody>
             <tr v-for="ep in pathsOf(p)" :key="ep.path" class="border-t border-steel-100 first:border-0 dark:border-steel-800/60">
               <td class="px-3 py-2">
-                <span class="font-mono">{{ ep.path }}</span>
-                <span v-if="ep.main" class="chip ml-1 bg-accent-500/12 text-accent-600 dark:text-accent-300">{{ t('paths.main') }}</span>
-                <span v-else-if="ep.custom" class="chip ml-1 bg-kin-400/15 text-kin-600 dark:text-kin-400">{{ t('paths.custom') }}</span>
+                <div class="flex flex-wrap items-center gap-1">
+                  <span class="font-mono" :class="ep.disabled ? 'text-steel-400 line-through' : ''">{{ ep.path }}</span>
+                  <span v-if="ep.main" class="chip bg-accent-500/12 text-accent-600 dark:text-accent-300">{{ t('paths.main') }}</span>
+                  <span v-else-if="ep.custom" class="chip bg-kin-400/15 text-kin-600 dark:text-kin-400">{{ t('paths.custom') }}</span>
+                  <span v-if="ep.disabled" class="chip bg-aka-500/10 text-aka-600">{{ t('paths.disabled') }}</span>
+                </div>
+                <p v-if="ep.desc" class="mt-0.5 text-[11px] text-steel-400">{{ ep.desc }}</p>
               </td>
               <td class="px-3 py-2">
                 <button class="group flex max-w-full items-center gap-1.5 text-left font-mono text-steel-500 hover:text-ai-700 dark:hover:text-kin-300" @click="copy(directBase(p) + ep.path)">

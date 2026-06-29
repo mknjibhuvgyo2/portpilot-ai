@@ -13,7 +13,7 @@ export const en = {
   paths: {
     title: 'Port Paths', subtitle: 'Every callable URL each port service exposes (the /path after host:port) — direct and via gateway. Edit the gateway slug or add a custom path.',
     empty: 'No port services yet.', slug: 'Gateway slug (/gw/<slug>/)', customPath: 'Custom path', path: 'Path',
-    directUrl: 'Direct URL', gatewayUrl: 'Gateway URL', main: 'main', custom: 'custom', restart: 'Restart',
+    directUrl: 'Direct URL', gatewayUrl: 'Gateway URL', main: 'main', custom: 'custom', disabled: 'disabled', restart: 'Restart',
     saved: '✅ Saved', restartHint: '⚠️ Custom path saved — restart this port to apply (click Restart above).',
     customPathHint: 'Also serve the main endpoint at a custom path (e.g. /myapi) alongside the standard /v1/*. Slug changes apply instantly; custom-path changes need a port restart.',
     gatewayNote: "Gateway URLs are under this hub's /gw/<slug>/; direct URLs use each port's own port number (open that port on your LAN).",
@@ -62,7 +62,14 @@ export const en = {
     modelAlias: 'Model alias', status: 'Status', actions: 'Actions', noServices: 'No services',
     statusConflict: 'Port in use', conflictHint: 'This port is already used by another process — stop that process or pick another port.',
     createTitle: 'New port service', editTitle: 'Edit port service',
-    tabs: { basic: 'Basic', model: 'Task Flow', prompt: 'Prompt', runtime: 'Runtime', gateway: 'Gateway' },
+    tabs: { basic: 'Basic', model: 'Task Flow', prompt: 'Prompt', routes: 'Routes', runtime: 'Runtime', gateway: 'Gateway' },
+    routes: {
+      hint: 'Modularize each endpoint like the task flow: pick a built-in handler, set its public path, describe what it does, enable/disable. Empty = the template\'s native default paths.',
+      generic: 'This template uses the standard OpenAI-compatible paths (/v1/chat/completions, etc.); set a custom public path via path_alias on the Port Paths page.',
+      enabled: 'Enabled', pathPh: '/custom-path', descPh: 'What this path does (description)',
+      add: '+ Add path', reset: 'Reset to defaults',
+      vtWarn: 'Note: renaming or disabling native paths like /score_json or /match will break VT calls unless you update VT\'s Web.config too.',
+    },
     taskflow: {
       title: 'Task Flow', hint: 'A single call runs these tasks in order; each task picks its own model, and each step’s output feeds the next. Templates consume tasks by index (e.g. describe→select, score→report).',
       add: '+ Add task', remove: 'Remove', taskName: 'Task name', model: 'Model', prompt: 'Task prompt (optional)',

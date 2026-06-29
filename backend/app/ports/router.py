@@ -43,6 +43,7 @@ def _apply_tasks(data: dict) -> dict:
     and single-stage templates). Returns kwargs safe for the PortService model."""
     tasks = data.pop("tasks", None)
     debug = data.pop("debug", None)
+    routes = data.pop("routes", None)
     if tasks:
         first = tasks[0]
         if first.get("alias"):
@@ -55,6 +56,10 @@ def _apply_tasks(data: dict) -> dict:
     if debug is not None:
         extra = dict(data.get("extra") or {})
         extra["debug"] = bool(debug)
+        data["extra"] = extra
+    if routes is not None:
+        extra = dict(data.get("extra") or {})
+        extra["routes"] = routes
         data["extra"] = extra
     return data
 
@@ -100,7 +105,10 @@ def update_port(port_id: int, body: PortUpdate, db: Session = Depends(get_db),
             p.extra = extra
             restart_needed = manager.is_running(port_id)
 
-    if "tasks" in changed or "debug" in changed:
+    # routes are bound at build time, so changing them on a running port needs a restart
+    if "routes" in changed and manager.is_running(port_id):
+        restart_needed = True
+    if "tasks" in changed or "debug" in changed or "routes" in changed:
         changed.setdefault("extra", dict(p.extra or {}))
         changed = _apply_tasks(changed)
     for k, v in changed.items():

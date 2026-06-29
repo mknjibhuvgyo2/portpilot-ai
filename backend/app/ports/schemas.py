@@ -21,6 +21,16 @@ class TaskItem(BaseModel):
     io: dict = {}  # per-task advanced I/O config (generation params, image handling, output format)
 
 
+class RouteItem(BaseModel):
+    """One configurable endpoint route: serve a template's built-in `handler` at a
+    custom `path`, optionally disabled, with a human description. Empty list/None
+    keeps the template's native default paths."""
+    path: str = ""
+    handler: str = ""
+    enabled: bool = True
+    description: str = ""
+
+
 class PortCreate(BaseModel):
     name: str
     slug: str
@@ -30,6 +40,8 @@ class PortCreate(BaseModel):
     system_prompt: str = ""
     # Task flow: ordered, independent tasks. tasks[0] mirrors model_alias/system_prompt.
     tasks: list[TaskItem] | None = None
+    # Modular endpoint routing (stored in extra.routes); None = template defaults.
+    routes: list[RouteItem] | None = None
     streaming: bool = True
     concurrency: int = Field(default=8, ge=1, le=256)
     timeout: float = Field(default=120.0, gt=0)
@@ -64,6 +76,7 @@ class PortUpdate(BaseModel):
     autostart: bool | None = None
     debug: bool | None = None
     tasks: list[TaskItem] | None = None
+    routes: list[RouteItem] | None = None
 
     @field_validator("slug")
     @classmethod

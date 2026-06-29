@@ -13,7 +13,7 @@ export const ja = {
   paths: {
     title: 'ポートパス', subtitle: '各ポートサービスが公開する全呼び出し URL（host:port の後ろの /パス）。直結とゲートウェイ両方。ゲートウェイ slug の変更やカスタムパスの追加が可能。',
     empty: 'ポートサービスがありません。', slug: 'ゲートウェイ slug（/gw/<slug>/）', customPath: 'カスタムパス', path: 'パス',
-    directUrl: '直結 URL', gatewayUrl: 'ゲートウェイ URL', main: 'メイン', custom: 'カスタム', restart: '再起動',
+    directUrl: '直結 URL', gatewayUrl: 'ゲートウェイ URL', main: 'メイン', custom: 'カスタム', disabled: '無効', restart: '再起動',
     saved: '✅ 保存しました', restartHint: '⚠️ カスタムパスを保存しました。反映には当該ポートの再起動が必要です（上の「再起動」）。',
     customPathHint: 'メインエンドポイントを標準 /v1/* に加えてカスタムパス（例 /myapi）でも公開します。slug は即時反映、カスタムパスは再起動が必要です。',
     gatewayNote: 'ゲートウェイ URL は本 hub の /gw/<slug>/ 配下。直結 URL は各ポート自身のポート番号を使用（LAN で当該ポートを開放してください）。',
@@ -62,7 +62,14 @@ export const ja = {
     modelAlias: 'モデル別名', status: '状態', actions: '操作', noServices: 'サービスなし',
     statusConflict: 'ポート使用中', conflictHint: 'このポートは他のプロセスが使用中で起動できません。該当プロセスを停止するか別のポートを使ってください。',
     createTitle: '新規ポートサービス', editTitle: 'ポートサービスの編集',
-    tabs: { basic: '基本', model: 'タスクフロー', prompt: 'プロンプト', runtime: '実行設定', gateway: 'ゲートウェイ' },
+    tabs: { basic: '基本', model: 'タスクフロー', prompt: 'プロンプト', routes: 'ルート', runtime: '実行設定', gateway: 'ゲートウェイ' },
+    routes: {
+      hint: 'タスクフローのように各エンドポイントをモジュール化：組み込みハンドラを選び、公開パスを設定し、用途を記述し、有効/無効を切替。空欄ならテンプレートのネイティブ既定パス。',
+      generic: 'このテンプレートは標準 OpenAI 互換パス（/v1/chat/completions 等）を使用します。カスタム公開パスは「ポートパス」ページの path_alias で設定してください。',
+      enabled: '有効', pathPh: '/カスタムパス', descPh: 'このパスの用途（説明）',
+      add: '＋ パス追加', reset: '既定に戻す',
+      vtWarn: '注意：/score_json や /match などネイティブパスの改名・無効化は、VT の Web.config を更新しない限り VT 連携を切断します。',
+    },
     taskflow: {
       title: 'タスクフロー', hint: '1回の呼び出しでこれらのタスクを順に実行。各タスクは独立してモデルを選び、前の出力が次の入力になります。テンプレートはタスク順にモデルを使用（例：説明→選定、採点→レポート）。',
       add: '+ タスク追加', remove: '削除', taskName: 'タスク名', model: 'モデル', prompt: 'タスク用プロンプト（任意）',

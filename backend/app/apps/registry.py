@@ -28,7 +28,10 @@ def get_template(app_type: str) -> AppTemplate | None:
 def list_templates() -> list[dict]:
     return [
         {"app_type": t.app_type, "title": t.title, "description": t.description,
-         "default_prompt": t.default_prompt, "io_format": t.io_format}
+         "default_prompt": t.default_prompt, "io_format": t.io_format,
+         # single-stage templates synthesize one stage from their default_prompt
+         "stages": t.stages or [{"name": "系统提示词", "default_prompt": t.default_prompt or ""}],
+         "routes": t.routes}
         for t in _TEMPLATES.values()
     ]
 

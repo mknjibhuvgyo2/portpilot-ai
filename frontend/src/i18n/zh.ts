@@ -13,7 +13,7 @@ export const zh = {
   paths: {
     title: '端口路径', subtitle: '每个端口服务对外暴露的全部调用地址（host:端口 后面的 /路径），含直连与网关两种；可改网关 slug、加自定义路径。',
     empty: '还没有端口服务。', slug: '网关 slug（/gw/<slug>/）', customPath: '自定义路径', path: '路径',
-    directUrl: '直连地址', gatewayUrl: '网关地址', main: '主端点', custom: '自定义', restart: '重启',
+    directUrl: '直连地址', gatewayUrl: '网关地址', main: '主端点', custom: '自定义', disabled: '已停用', restart: '重启',
     saved: '✅ 已保存', restartHint: '⚠️ 自定义路径已保存，需重启该端口才生效（点上面的“重启”）。',
     customPathHint: '把主端点也挂到一个自定义路径上（如 /myapi），与标准 /v1/* 并存；改 slug 即时生效，改自定义路径需重启端口。',
     gatewayNote: '网关地址前缀为本机 hub 的 /gw/<slug>/；直连地址用各端口自身端口号（内网需开放对应端口）。',
@@ -61,7 +61,14 @@ export const zh = {
     modelAlias: '模型别名', status: '状态', actions: '操作', noServices: '暂无服务',
     statusConflict: '端口被占用', conflictHint: '该端口已被其他进程占用，无法启动；请停掉占用方或改用其他端口。',
     createTitle: '新建端口服务', editTitle: '编辑端口服务',
-    tabs: { basic: '基本', model: '任务流', prompt: '提示词', runtime: '运行参数', gateway: '网关' },
+    tabs: { basic: '基本', model: '任务流', prompt: '提示词', routes: '接口路由', runtime: '运行参数', gateway: '网关' },
+    routes: {
+      hint: '像任务流一样把每个接口路径模块化：选择内置处理器、自定义对外路径、写用途说明、按需启用/停用。留空即使用模板原生默认路径。',
+      generic: '该模板使用标准 OpenAI 兼容路径（/v1/chat/completions 等）；自定义对外路径请在「端口路径」页用 path_alias 设置。',
+      enabled: '启用', pathPh: '/自定义路径', descPh: '这个路径是干什么的（用途说明）',
+      add: '＋ 新增路径', reset: '恢复默认',
+      vtWarn: '注意：改名或停用 /score_json、/match 等原生路径会断开 VT 系统调用，除非同步修改 VT 的 Web.config。',
+    },
     taskflow: {
       title: '任务流', hint: '一次调用按顺序执行这些任务，每个任务独立选用模型；上一步输出作为下一步输入。模板按任务序号取各阶段模型（如：看图→筛选、打分→报告）。',
       add: '+ 添加任务', remove: '删除', taskName: '任务名', model: '模型', prompt: '该任务提示词（可选）',
