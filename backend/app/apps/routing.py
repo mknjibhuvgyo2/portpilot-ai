@@ -14,7 +14,22 @@ registry).
 """
 from __future__ import annotations
 
-from typing import Any, Callable
+from typing import Any
+
+from fastapi import Depends
+
+
+def _tasks_dependency(tasks: list):
+    """A yield-dependency that activates this route's own task flow for the request,
+    then restores the previous flow afterwards."""
+    async def _dep():
+        from app.apps.eval_common import ACTIVE_TASKS
+        token = ACTIVE_TASKS.set(tasks)
+        try:
+            yield
+        finally:
+            ACTIVE_TASKS.reset(token)
+    return _dep
 
 
 def routes_meta(specs: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -39,13 +54,15 @@ def mount_routes(app, config, handlers: dict[str, dict[str, Any]]) -> None:
 
     mounted: set[tuple[str, str]] = set()
 
-    def _add(path: str, h: dict[str, Any]) -> bool:
+    def _add(path: str, h: dict[str, Any], tasks: list | None = None) -> bool:
         methods = [str(m).upper() for m in h.get("methods", [])]
         if any((m, path) in mounted for m in methods):
             return False
         for m in methods:
             mounted.add((m, path))
-        app.add_api_route(path, h["fn"], methods=methods)
+        # a route may bind its own complete task flow (per-path model/prompt/I/O)
+        deps = [Depends(_tasks_dependency(tasks))] if isinstance(tasks, list) and tasks else None
+        app.add_api_route(path, h["fn"], methods=methods, dependencies=deps)
         return True
 
     for r in routes:
@@ -55,7 +72,7 @@ def mount_routes(app, config, handlers: dict[str, dict[str, Any]]) -> None:
         path = str(r.get("path") or "").strip()
         if not h or not path.startswith("/"):
             continue
-        _add(path, h)
+        _add(path, h, r.get("tasks"))
 
     # the health check must always be reachable, at its template's native path
     health = handlers.get("health")

@@ -13,7 +13,7 @@ export const ja = {
   paths: {
     title: 'ポートパス', subtitle: '各ポートサービスが公開する全呼び出し URL（host:port の後ろの /パス）。直結とゲートウェイ両方。ゲートウェイ slug の変更やカスタムパスの追加が可能。',
     empty: 'ポートサービスがありません。', slug: 'ゲートウェイ slug（/gw/<slug>/）', customPath: 'カスタムパス', path: 'パス',
-    purpose: '用途/機能', routesEditHint: 'パス変更はポート再起動で反映されます',
+    purpose: '用途/機能', routesEditHint: 'パス変更はポート再起動で反映されます', configureRoutes: 'ルート設定',
     directUrl: '直結 URL', gatewayUrl: 'ゲートウェイ URL', main: 'メイン', custom: 'カスタム', disabled: '無効', restart: '再起動',
     saved: '✅ 保存しました', restartHint: '⚠️ カスタムパスを保存しました。反映には当該ポートの再起動が必要です（上の「再起動」）。',
     customPathHint: 'メインエンドポイントを標準 /v1/* に加えてカスタムパス（例 /myapi）でも公開します。slug は即時反映、カスタムパスは再起動が必要です。',
@@ -68,7 +68,10 @@ export const ja = {
       hint: 'タスクフローのように各エンドポイントをモジュール化：組み込みハンドラを選び、公開パスを設定し、用途を記述し、有効/無効を切替。空欄ならテンプレートのネイティブ既定パス。',
       generic: 'このテンプレートは標準 OpenAI 互換パス（/v1/chat/completions 等）を使用します。カスタム公開パスは「ポートパス」ページの path_alias で設定してください。',
       enabled: '有効', pathPh: '/カスタムパス', descPh: 'このパスの用途（説明）',
-      add: '＋ パス追加', reset: '既定に戻す',
+      add: '＋ パス追加', reset: '既定に戻す', config: '設定', handler: '機能（ハンドラ）',
+      ownFlow: '専用フロー',
+      flowTitle: 'このパスのタスクフロー', flowEnable: 'このパス専用のタスクフローを作成', flowClear: 'クリア（ポート既定を使用）',
+      flowNone: '未設定：このパスはポート既定のタスクフロー（モデル/プロンプト/パラメータ）を使用します。上のボタンでこのパス専用の完全なタスクフローを作成できます。',
       vtWarn: '注意：/score_json や /match などネイティブパスの改名・無効化は、VT の Web.config を更新しない限り VT 連携を切断します。',
     },
     taskflow: {

@@ -13,7 +13,7 @@ export const zh = {
   paths: {
     title: '端口路径', subtitle: '每个端口服务对外暴露的全部调用地址（host:端口 后面的 /路径），含直连与网关两种；可改网关 slug、加自定义路径。',
     empty: '还没有端口服务。', slug: '网关 slug（/gw/<slug>/）', customPath: '自定义路径', path: '路径',
-    purpose: '用途/功能', routesEditHint: '改动接口路径需重启端口生效',
+    purpose: '用途/功能', routesEditHint: '改动接口路径需重启端口生效', configureRoutes: '配置接口路由',
     directUrl: '直连地址', gatewayUrl: '网关地址', main: '主端点', custom: '自定义', disabled: '已停用', restart: '重启',
     saved: '✅ 已保存', restartHint: '⚠️ 自定义路径已保存，需重启该端口才生效（点上面的“重启”）。',
     customPathHint: '把主端点也挂到一个自定义路径上（如 /myapi），与标准 /v1/* 并存；改 slug 即时生效，改自定义路径需重启端口。',
@@ -67,7 +67,10 @@ export const zh = {
       hint: '像任务流一样把每个接口路径模块化：选择内置处理器、自定义对外路径、写用途说明、按需启用/停用。留空即使用模板原生默认路径。',
       generic: '该模板使用标准 OpenAI 兼容路径（/v1/chat/completions 等）；自定义对外路径请在「端口路径」页用 path_alias 设置。',
       enabled: '启用', pathPh: '/自定义路径', descPh: '这个路径是干什么的（用途说明）',
-      add: '＋ 新增路径', reset: '恢复默认',
+      add: '＋ 新增路径', reset: '恢复默认', config: '配置功能', handler: '执行功能（处理器）',
+      ownFlow: '专属任务流',
+      flowTitle: '该路径的任务流', flowEnable: '为此路径单独配置任务流', flowClear: '清除（改用端口默认）',
+      flowNone: '未单独配置：该路径使用端口默认任务流（模型/提示词/参数）。点上方按钮可为这个路径单独编一条完整任务流。',
       vtWarn: '注意：改名或停用 /score_json、/match 等原生路径会断开 VT 系统调用，除非同步修改 VT 的 Web.config。',
     },
     taskflow: {

@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import WaIcon from '../components/WaIcon.vue'
+import TaskFlowEditor from '../components/TaskFlowEditor.vue'
 import api from '../api/client'
 import { useAuthStore } from '../stores/auth'
 
@@ -57,7 +58,7 @@ const blank = () => ({
   // Task flow: ordered, independent tasks. tasks[0] is the main/first stage.
   tasks: [newTask()],
   // Modular endpoint routes (empty = template's native default paths).
-  routes: [] as Array<{ path: string; handler: string; enabled: boolean; description: string }>,
+  routes: [] as Array<{ path: string; handler: string; enabled: boolean; description: string; tasks?: any[] | null }>,
 })
 const form = ref(blank())
 
@@ -72,7 +73,11 @@ onMounted(async () => {
   const eid = route.query.edit
   if (eid) {
     const p = ports.value.find((x) => String(x.id) === String(eid))
-    if (p) openEdit(p)
+    if (p) {
+      openEdit(p)
+      const qt = String(route.query.tab || '')
+      if (['basic', 'model', 'prompt', 'routes', 'runtime', 'gateway'].includes(qt)) tab.value = qt as any
+    }
   }
 })
 
@@ -136,6 +141,15 @@ function addRoute() {
   form.value.routes.push({ path: '', handler: first ? first.handler : '', enabled: true, description: '' })
 }
 function removeRoute(i: number) { form.value.routes.splice(i, 1) }
+const openRoute = ref<number | null>(null)
+function toggleRoute(i: number) { openRoute.value = openRoute.value === i ? null : i }
+function enableRouteFlow(r: any) {
+  const st = stagesOf()
+  r.tasks = st.length
+    ? st.map((s) => ({ name: s.name, alias: '', prompt: s.default_prompt || '', mode: 'fixed', pool: [], io: ioDefaults() }))
+    : [newTask()]
+}
+function clearRouteFlow(r: any) { r.tasks = null }
 
 function openCreate() { editingId.value = null; form.value = blank(); ensureStages(false); resetRoutes(); tab.value = 'basic'; err.value = ''; showForm.value = true }
 function openEdit(p: any) {
@@ -507,19 +521,40 @@ async function saveToLibrary() {
               {{ t('ports.routes.generic') }}
             </div>
             <template v-else>
-              <div v-for="(r, i) in form.routes" :key="i"
-                class="space-y-2 rounded-lg border border-steel-200/70 p-3 dark:border-steel-800">
-                <div class="flex flex-wrap items-center gap-2">
-                  <label class="flex items-center gap-1.5 text-[11px]">
-                    <input v-model="r.enabled" type="checkbox" class="accent-accent-500" />{{ t('ports.routes.enabled') }}
-                  </label>
-                  <select v-model="r.handler" class="input !w-48 !py-1.5 text-xs">
-                    <option v-for="h in templateRoutes()" :key="h.handler" :value="h.handler">{{ h.method }} · {{ h.handler }}</option>
-                  </select>
-                  <input v-model="r.path" class="input !py-1.5 font-mono text-xs" :placeholder="t('ports.routes.pathPh')" />
-                  <button v-if="form.routes.length > 1" class="btn-ghost !px-2 text-aka-500" @click="removeRoute(i)"><WaIcon name="trash" :size="14" /></button>
+              <div v-for="(r, i) in form.routes" :key="i" class="rounded-lg border border-steel-200/70 dark:border-steel-800">
+                <div class="flex flex-wrap items-center gap-2 p-3">
+                  <input v-model="r.enabled" type="checkbox" class="accent-accent-500" :title="t('ports.routes.enabled')" />
+                  <span class="font-mono text-xs" :class="r.enabled ? '' : 'text-steel-400 line-through'">{{ r.path || '—' }}</span>
+                  <span class="chip bg-steel-500/10 text-steel-500">{{ r.handler }}</span>
+                  <span v-if="r.tasks && r.tasks.length" class="chip bg-kin-400/15 text-kin-600 dark:text-kin-400">{{ t('ports.routes.ownFlow') }} · {{ r.tasks.length }}</span>
+                  <span class="ml-auto flex items-center gap-1">
+                    <button type="button" class="btn-ghost" @click="toggleRoute(i)">
+                      <WaIcon :name="openRoute === i ? 'chevron-down' : 'chevron-right'" :size="14" />{{ t('ports.routes.config') }}
+                    </button>
+                    <button v-if="form.routes.length > 1" class="btn-ghost !px-2 text-aka-500" @click="removeRoute(i)"><WaIcon name="trash" :size="14" /></button>
+                  </span>
                 </div>
-                <input v-model="r.description" class="input !py-1.5 text-xs" :placeholder="t('ports.routes.descPh')" />
+                <div v-show="openRoute === i" class="space-y-3 border-t border-steel-200/70 p-3 dark:border-steel-800">
+                  <div class="grid gap-2 sm:grid-cols-2">
+                    <label class="block"><span class="label">{{ t('paths.path') }}</span>
+                      <input v-model="r.path" class="input !py-1.5 font-mono text-xs" :placeholder="t('ports.routes.pathPh')" /></label>
+                    <label class="block"><span class="label">{{ t('ports.routes.handler') }}</span>
+                      <select v-model="r.handler" class="input !py-1.5 text-xs">
+                        <option v-for="h in templateRoutes()" :key="h.handler" :value="h.handler">{{ h.method }} · {{ h.handler }}</option>
+                      </select></label>
+                  </div>
+                  <label class="block"><span class="label">{{ t('paths.purpose') }}</span>
+                    <input v-model="r.description" class="input !py-1.5 text-xs" :placeholder="t('ports.routes.descPh')" /></label>
+                  <div class="rounded-md border border-steel-200/70 p-2.5 dark:border-steel-800">
+                    <div class="mb-2 flex items-center gap-2">
+                      <span class="text-xs font-medium text-steel-600 dark:text-steel-300">{{ t('ports.routes.flowTitle') }}</span>
+                      <button v-if="!(r.tasks && r.tasks.length)" type="button" class="btn-ghost ml-auto" @click="enableRouteFlow(r)"><WaIcon name="plus" :size="13" />{{ t('ports.routes.flowEnable') }}</button>
+                      <button v-else type="button" class="btn-ghost ml-auto text-aka-500" @click="clearRouteFlow(r)"><WaIcon name="trash" :size="13" />{{ t('ports.routes.flowClear') }}</button>
+                    </div>
+                    <p v-if="!(r.tasks && r.tasks.length)" class="text-[11px] leading-relaxed text-steel-400">{{ t('ports.routes.flowNone') }}</p>
+                    <TaskFlowEditor v-else :tasks="r.tasks" :aliases="aliases" :stages="stagesOf()" />
+                  </div>
+                </div>
               </div>
               <div class="flex items-center gap-2">
                 <button class="btn-ghost" @click="addRoute"><WaIcon name="plus" :size="14" />{{ t('ports.routes.add') }}</button>

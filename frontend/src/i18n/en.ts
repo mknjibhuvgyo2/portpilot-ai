@@ -13,7 +13,7 @@ export const en = {
   paths: {
     title: 'Port Paths', subtitle: 'Every callable URL each port service exposes (the /path after host:port) — direct and via gateway. Edit the gateway slug or add a custom path.',
     empty: 'No port services yet.', slug: 'Gateway slug (/gw/<slug>/)', customPath: 'Custom path', path: 'Path',
-    purpose: 'Purpose', routesEditHint: 'Changing endpoint paths needs a port restart to apply',
+    purpose: 'Purpose', routesEditHint: 'Changing endpoint paths needs a port restart to apply', configureRoutes: 'Configure routes',
     directUrl: 'Direct URL', gatewayUrl: 'Gateway URL', main: 'main', custom: 'custom', disabled: 'disabled', restart: 'Restart',
     saved: '✅ Saved', restartHint: '⚠️ Custom path saved — restart this port to apply (click Restart above).',
     customPathHint: 'Also serve the main endpoint at a custom path (e.g. /myapi) alongside the standard /v1/*. Slug changes apply instantly; custom-path changes need a port restart.',
@@ -68,7 +68,10 @@ export const en = {
       hint: 'Modularize each endpoint like the task flow: pick a built-in handler, set its public path, describe what it does, enable/disable. Empty = the template\'s native default paths.',
       generic: 'This template uses the standard OpenAI-compatible paths (/v1/chat/completions, etc.); set a custom public path via path_alias on the Port Paths page.',
       enabled: 'Enabled', pathPh: '/custom-path', descPh: 'What this path does (description)',
-      add: '+ Add path', reset: 'Reset to defaults',
+      add: '+ Add path', reset: 'Reset to defaults', config: 'Configure', handler: 'Function (handler)',
+      ownFlow: 'own flow',
+      flowTitle: "This path's task flow", flowEnable: 'Give this path its own task flow', flowClear: 'Clear (use port default)',
+      flowNone: "Not set: this path uses the port's default task flow (model/prompt/params). Click above to build a complete task flow just for this path.",
       vtWarn: 'Note: renaming or disabling native paths like /score_json or /match will break VT calls unless you update VT\'s Web.config too.',
     },
     taskflow: {

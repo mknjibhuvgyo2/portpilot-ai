@@ -29,6 +29,8 @@ class RouteItem(BaseModel):
     handler: str = ""
     enabled: bool = True
     description: str = ""
+    # Optional per-route task flow (overrides the port's global tasks for this path).
+    tasks: list[TaskItem] | None = None
 
 
 class PortCreate(BaseModel):
