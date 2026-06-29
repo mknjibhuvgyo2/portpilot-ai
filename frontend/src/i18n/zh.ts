@@ -13,6 +13,7 @@ export const zh = {
   paths: {
     title: '端口路径', subtitle: '每个端口服务对外暴露的全部调用地址（host:端口 后面的 /路径），含直连与网关两种；可改网关 slug、加自定义路径。',
     empty: '还没有端口服务。', slug: '网关 slug（/gw/<slug>/）', customPath: '自定义路径', path: '路径',
+    purpose: '用途/功能', routesEditHint: '改动接口路径需重启端口生效',
     directUrl: '直连地址', gatewayUrl: '网关地址', main: '主端点', custom: '自定义', disabled: '已停用', restart: '重启',
     saved: '✅ 已保存', restartHint: '⚠️ 自定义路径已保存，需重启该端口才生效（点上面的“重启”）。',
     customPathHint: '把主端点也挂到一个自定义路径上（如 /myapi），与标准 /v1/* 并存；改 slug 即时生效，改自定义路径需重启端口。',

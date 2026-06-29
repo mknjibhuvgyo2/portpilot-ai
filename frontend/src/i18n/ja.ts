@@ -13,6 +13,7 @@ export const ja = {
   paths: {
     title: 'ポートパス', subtitle: '各ポートサービスが公開する全呼び出し URL（host:port の後ろの /パス）。直結とゲートウェイ両方。ゲートウェイ slug の変更やカスタムパスの追加が可能。',
     empty: 'ポートサービスがありません。', slug: 'ゲートウェイ slug（/gw/<slug>/）', customPath: 'カスタムパス', path: 'パス',
+    purpose: '用途/機能', routesEditHint: 'パス変更はポート再起動で反映されます',
     directUrl: '直結 URL', gatewayUrl: 'ゲートウェイ URL', main: 'メイン', custom: 'カスタム', disabled: '無効', restart: '再起動',
     saved: '✅ 保存しました', restartHint: '⚠️ カスタムパスを保存しました。反映には当該ポートの再起動が必要です（上の「再起動」）。',
     customPathHint: 'メインエンドポイントを標準 /v1/* に加えてカスタムパス（例 /myapi）でも公開します。slug は即時反映、カスタムパスは再起動が必要です。',

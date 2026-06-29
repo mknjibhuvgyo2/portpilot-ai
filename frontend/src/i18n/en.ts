@@ -13,6 +13,7 @@ export const en = {
   paths: {
     title: 'Port Paths', subtitle: 'Every callable URL each port service exposes (the /path after host:port) — direct and via gateway. Edit the gateway slug or add a custom path.',
     empty: 'No port services yet.', slug: 'Gateway slug (/gw/<slug>/)', customPath: 'Custom path', path: 'Path',
+    purpose: 'Purpose', routesEditHint: 'Changing endpoint paths needs a port restart to apply',
     directUrl: 'Direct URL', gatewayUrl: 'Gateway URL', main: 'main', custom: 'custom', disabled: 'disabled', restart: 'Restart',
     saved: '✅ Saved', restartHint: '⚠️ Custom path saved — restart this port to apply (click Restart above).',
     customPathHint: 'Also serve the main endpoint at a custom path (e.g. /myapi) alongside the standard /v1/*. Slug changes apply instantly; custom-path changes need a port restart.',
