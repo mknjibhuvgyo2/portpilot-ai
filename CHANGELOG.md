@@ -8,9 +8,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Default I/O format viewer** — the port editor's prompt menu shows each
+  template's endpoints, input/output JSON examples and full default prompt
+  (read-only), noting the output format is decided by the prompt.
+- **Per-stage prompt editing** — the prompt tab shows one full editor per
+  pipeline stage (`AppTemplate.stages`), each pre-filled with its complete
+  default prompt (view/restore per stage).
+- **Modular endpoint routing** — `AppTemplate.routes` + `app/apps/routing.py`
+  `mount_routes` mount endpoints from `extra.routes`
+  (`{path, handler, enabled, description, tasks}`), falling back to native
+  default paths. A Routes tab configures each path via a submenu.
+- **Per-path task flow** — each route can carry its own complete task flow
+  (per-path model/prompt/I/O) via `eval_common.ACTIVE_TASKS`; `RouteItem.tasks`
+  + a yield-dependency activate it per request. New reusable `TaskFlowEditor`
+  Vue component. (Release ships no eval templates, so the Routes tab shows the
+  generic note and prompts collapse to a single stage.)
 - Unit-test coverage for the Import Wizard (`/api/importer` JSON extraction and
   auto-fill apply), Task Flows (`_apply_tasks` normalization), and the
   port-conflict guard (`port_in_use` + conflict status / 409-on-start).
+
+### Fixed
+- Port Paths table headers no longer stack vertically (`[&>th]:label` collapsed
+  to `display:block`; replaced with plain utilities — same Tailwind-v3 issue as
+  the earlier Ports/Keys/Users fix).
 
 ## [0.1.3] - 2026-06-26
 
