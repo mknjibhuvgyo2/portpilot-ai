@@ -39,6 +39,10 @@ class PortRunner:
         if not template:
             raise ValueError(f"Unknown app_type: {self.config.app_type}")
         app = template.build_app(self.config)
+        # Outermost guard: serialize mutating requests across ALL ports (process-global
+        # limit, default 1) so the machine handles one request at a time; rest queue.
+        from app.core.concurrency import GlobalSerializeMiddleware
+        app.add_middleware(GlobalSerializeMiddleware)
         uconfig = uvicorn.Config(
             app, host="0.0.0.0", port=self.config.port,
             log_level="warning", loop="asyncio",

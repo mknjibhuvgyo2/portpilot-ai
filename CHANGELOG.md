@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   + a yield-dependency activate it per request. New reusable `TaskFlowEditor`
   Vue component. (Release ships no eval templates, so the Routes tab shows the
   generic note and prompts collapse to a single stage.)
+- **Global request serialization** (`app/core/concurrency.py`) — a process-wide
+  `BoundedSemaphore` installed as the outermost middleware of every port app
+  (`PortRunner.start`): the machine handles at most one mutating port request at
+  a time, the rest queue; GET/HEAD/OPTIONS bypass. Limit via
+  `HUB_GLOBAL_MAX_CONCURRENCY` (default 1).
 - Unit-test coverage for the Import Wizard (`/api/importer` JSON extraction and
   auto-fill apply), Task Flows (`_apply_tasks` normalization), and the
   port-conflict guard (`port_in_use` + conflict status / 409-on-start).
