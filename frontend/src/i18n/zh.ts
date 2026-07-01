@@ -188,6 +188,8 @@ export const zh = {
     accessNote: '（在下方可导出 Nginx/Caddy 反代配置。）',
     currentUser: '当前用户',
     cfgTitle: '配置备份 / 迁移', cfgHint: '导出全部厂商、模型别名、端口服务为 JSON，可在另一台机器导入恢复（导入为合并，同名项跳过）。',
+    auTitle: '本地模型运行', auHint: '开启后，每个请求跑完自动卸载本地模型、释放显存（配合"全局串行"实现一次只占一个模型）。Ollama 用 keep_alive=0 立即卸载；LM Studio 用 JIT ttl（空闲若干秒后卸载）。OneAPI/云端不受影响。',
+    auEnabled: '跑完自动卸载本地模型（释放显存）', auTtl: 'LM Studio 卸载空闲秒数(ttl)', auTtlHint: '秒；LM Studio 专用，Ollama 立即卸载不看这个',
     cfgSecrets: '导出时包含 API Key（谨慎）', cfgExport: '导出配置', cfgImport: '导入配置',
     cfgResult: '✅ 导入完成：厂商 +{pa}、别名 +{aa}、端口 +{poa}（跳过 {ps} 项已存在）', cfgErr: '导入失败',
     exporter: '反代配置导出', exporterServer: '反代软件', exporterMode: '路由模式',

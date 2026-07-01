@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import WaIcon from '../components/WaIcon.vue'
 import api from '../api/client'
@@ -25,6 +25,19 @@ async function changePw() {
   }
 }
 function pickLang(code: LocaleCode) { setLocale(code) }
+
+// --- auto-unload local models after a run (free VRAM) ---
+const autoUnload = ref<{ enabled: boolean; lms_ttl: number }>({ enabled: true, lms_ttl: 60 })
+const auMsg = ref('')
+async function loadAutoUnload() { try { autoUnload.value = (await api.get('/api/models/auto-unload')).data } catch { /* ignore */ } }
+async function saveAutoUnload() {
+  auMsg.value = ''
+  try {
+    autoUnload.value = (await api.put('/api/models/auto-unload', autoUnload.value)).data
+    auMsg.value = t('settings.saved'); setTimeout(() => (auMsg.value = ''), 2500)
+  } catch (e: any) { auMsg.value = '❌ ' + (e.response?.data?.detail || 'error') }
+}
+onMounted(() => { if (auth.isAdmin) loadAutoUnload() })
 
 // --- config backup / migration ---
 const cfgSecrets = ref(false)
@@ -124,6 +137,21 @@ function downloadConfig() {
         <label class="btn-ghost cursor-pointer"><WaIcon name="upload" :size="14" />{{ t('settings.cfgImport') }}<input type="file" accept=".json,application/json" class="hidden" @change="importConfig" /></label>
         <span v-if="cfgMsg" class="text-sm" :class="cfgMsg.startsWith('❌') ? 'text-aka-600' : 'text-matcha-600'">{{ cfgMsg }}</span>
       </div>
+    </div>
+
+    <!-- local model runtime: auto-unload after a run to free VRAM -->
+    <div v-if="auth.isAdmin" class="card space-y-3">
+      <h2 class="heading text-sm"><WaIcon name="models" :size="18" /> {{ t('settings.auTitle') }}</h2>
+      <p class="text-xs leading-relaxed text-steel-400">{{ t('settings.auHint') }}</p>
+      <label class="flex items-center gap-2 text-sm">
+        <input v-model="autoUnload.enabled" type="checkbox" class="accent-ai-600" @change="saveAutoUnload" />{{ t('settings.auEnabled') }}
+      </label>
+      <div class="flex flex-wrap items-center gap-2 text-sm">
+        <span class="text-steel-500 dark:text-steel-400">{{ t('settings.auTtl') }}</span>
+        <input v-model.number="autoUnload.lms_ttl" type="number" min="0" class="input !w-24 !py-1.5 text-xs" @change="saveAutoUnload" />
+        <span class="text-[11px] text-steel-400">{{ t('settings.auTtlHint') }}</span>
+      </div>
+      <p v-if="auMsg" class="text-xs" :class="auMsg.startsWith('❌') ? 'text-aka-600' : 'text-matcha-600'">{{ auMsg }}</p>
     </div>
 
     <div class="card space-y-2 text-sm text-steel-600 dark:text-steel-300">

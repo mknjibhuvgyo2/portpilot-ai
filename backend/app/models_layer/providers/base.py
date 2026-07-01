@@ -16,6 +16,9 @@ class BaseProvider(abc.ABC):
         self.api_key = api_key
         self.timeout = timeout
         self.extra = extra or {}
+        # the DB provider kind (e.g. "lmstudio"); set by build_provider so an
+        # OpenAI-compat instance can tell LM Studio apart from generic/cloud.
+        self.db_kind = self.kind
 
     def advanced(self) -> dict:
         """Engine-specific advanced params configured on the provider."""

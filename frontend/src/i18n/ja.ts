@@ -189,6 +189,8 @@ export const ja = {
     accessNote: '（下で Nginx/Caddy のリバースプロキシ設定を書き出せます）',
     currentUser: '現在のユーザー',
     cfgTitle: '設定のバックアップ / 移行', cfgHint: '全プロバイダ・モデル別名・ポートサービスを JSON で書出し、別マシンで読込み復元できます（読込はマージ、同名項目はスキップ）。',
+    auTitle: 'ローカルモデル実行', auHint: 'オンにすると、各リクエスト後にローカルモデルをアンロードして VRAM を解放します（グローバル直列化と組み合わせて常駐モデルは一度に一つ）。Ollama は keep_alive=0 で即時アンロード、LM Studio は JIT ttl（N 秒アイドル後）。OneAPI/クラウドは対象外。',
+    auEnabled: '実行後にローカルモデルをアンロード（VRAM 解放）', auTtl: 'LM Studio アイドルアンロード(ttl)', auTtlHint: '秒；LM Studio 専用、Ollama は即時',
     cfgSecrets: '書出しに API キーを含める（注意）', cfgExport: '設定を書出', cfgImport: '設定を読込',
     cfgResult: '✅ 読込完了：プロバイダ +{pa}、別名 +{aa}、ポート +{poa}（既存 {ps} 件スキップ）', cfgErr: '読込に失敗',
     exporter: 'リバースプロキシ設定の書き出し', exporterServer: 'プロキシ', exporterMode: 'ルーティング',

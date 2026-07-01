@@ -58,6 +58,9 @@ class OpenAICompatProvider(BaseProvider):
             if k in ("keep_alive",) or v in (None, ""):
                 continue
             body.setdefault(k, v)
+        # LM Studio: auto-unload after the run via its JIT `ttl` (idle seconds)
+        from app.models_layer.unload import inject_request_unload
+        inject_request_unload(body, self.db_kind)
         return body
 
     async def chat(self, model: str, req: ChatRequest) -> ChatResult:

@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.auth.deps import get_current_user, require_admin
-from app.db.models import ModelAlias, Provider
+from app.db.models import ModelAlias, Provider, Setting
 from app.db.session import get_db
 from app.models_layer.presets import PROVIDER_PRESETS
 from app.models_layer.router import build_provider
@@ -298,3 +298,31 @@ def delete_alias(aid: int, db: Session = Depends(get_db), _: object = Depends(re
     db.delete(a)
     db.commit()
     return {"ok": True}
+
+
+# --- auto-unload local models after a run (free VRAM) -----------------------
+class AutoUnloadCfg(BaseModel):
+    enabled: bool = True
+    lms_ttl: int = 60  # LM Studio JIT idle seconds before auto-unload
+
+
+@router.get("/auto-unload")
+def get_auto_unload(db: Session = Depends(get_db), _: object = Depends(get_current_user)):
+    row = db.get(Setting, "auto_unload")
+    v = row.value if row and isinstance(row.value, dict) else {}
+    return {"enabled": bool(v.get("enabled", True)), "lms_ttl": int(v.get("lms_ttl", 60) or 60)}
+
+
+@router.put("/auto-unload")
+def set_auto_unload(body: AutoUnloadCfg, db: Session = Depends(get_db),
+                    _: object = Depends(require_admin)):
+    clean = {"enabled": bool(body.enabled), "lms_ttl": max(0, int(body.lms_ttl or 60))}
+    row = db.get(Setting, "auto_unload")
+    if row:
+        row.value = clean
+    else:
+        db.add(Setting(key="auto_unload", value=clean))
+    db.commit()
+    from app.models_layer.unload import invalidate
+    invalidate()
+    return clean

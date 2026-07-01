@@ -67,7 +67,11 @@ class OllamaProvider(BaseProvider):
 
     def _keep_alive(self) -> Any:
         ka = self.advanced().get("keep_alive")
-        return ka if ka not in (None, "") else None
+        if ka not in (None, ""):
+            return ka  # explicit provider setting wins
+        # otherwise, when auto-unload is on, drop the model right after the run
+        from app.models_layer.unload import enabled as _auto_unload
+        return 0 if _auto_unload() else None
 
     async def chat(self, model: str, req: ChatRequest) -> ChatResult:
         body: dict[str, Any] = {

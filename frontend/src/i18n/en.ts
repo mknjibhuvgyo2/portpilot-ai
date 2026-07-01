@@ -189,6 +189,8 @@ export const en = {
     accessNote: '(Export an Nginx/Caddy reverse-proxy config below.)',
     currentUser: 'Current user',
     cfgTitle: 'Config backup / migration', cfgHint: 'Export all providers, model aliases and port services as JSON; import on another machine to restore (import is a merge — items with the same name are skipped).',
+    auTitle: 'Local model runtime', auHint: 'When on, local models are unloaded after each run to free VRAM (pairs with global serialization so only one model is resident at a time). Ollama unloads immediately via keep_alive=0; LM Studio uses a JIT ttl (unloads after N idle seconds). OneAPI/cloud are unaffected.',
+    auEnabled: 'Unload local models after a run (free VRAM)', auTtl: 'LM Studio idle unload (ttl)', auTtlHint: 'seconds; LM Studio only — Ollama unloads immediately',
     cfgSecrets: 'Include API keys in export (careful)', cfgExport: 'Export config', cfgImport: 'Import config',
     cfgResult: '✅ Imported: providers +{pa}, aliases +{aa}, ports +{poa} ({ps} existing skipped)', cfgErr: 'Import failed',
     exporter: 'Reverse-proxy export', exporterServer: 'Proxy server', exporterMode: 'Routing mode',

@@ -41,7 +41,9 @@ _PROVIDER_CLASSES: dict[str, type[BaseProvider]] = {
 def build_provider(kind: str, base_url: str, api_key: str, timeout: float,
                    extra: dict | None = None) -> BaseProvider:
     cls = _PROVIDER_CLASSES.get(kind, OpenAICompatProvider)
-    return cls(base_url=base_url, api_key=api_key, timeout=timeout, extra=extra or {})
+    provider = cls(base_url=base_url, api_key=api_key, timeout=timeout, extra=extra or {})
+    provider.db_kind = kind  # keep the real DB kind (e.g. "lmstudio") on the instance
+    return provider
 
 
 @dataclass
