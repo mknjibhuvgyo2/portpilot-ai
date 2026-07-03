@@ -59,6 +59,13 @@ class AppTemplate(abc.ABC):
     # and falls back to these native paths. Shape: [{handler, method, path,
     # description, main}]. None = the frontend derives paths from io_format only.
     routes: list[dict[str, Any]] | None = None
+    # Template-specific tunables ("模板参数"): every behavior knob that used to be a
+    # hardcoded constant, declared so the UI can render a form and a port created
+    # from scratch can reproduce/customize the template fully. Values are stored in
+    # config.extra["params"] and read via eval_common.tpl_param (hot-swappable).
+    # Shape: [{"key", "label", "type": "number"|"bool"|"text"|"textarea"|"json",
+    #          "default", "description", "group"?}]
+    params_schema: list[dict[str, Any]] | None = None
 
     @abc.abstractmethod
     def build_app(self, config: PortConfig):

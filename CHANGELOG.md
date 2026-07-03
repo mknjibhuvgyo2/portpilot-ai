@@ -28,6 +28,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`PortRunner.start`): the machine handles at most one mutating port request at
   a time, the rest queue; GET/HEAD/OPTIONS bypass. Limit via
   `HUB_GLOBAL_MAX_CONCURRENCY` (default 1).
+- **Template params** — `AppTemplate.params_schema` declares every template
+  behavior knob (`{key,label,type,default,description,group}`, type =
+  number|bool|text|textarea|json), exposed via `/api/ports/templates`; values
+  stored in `extra.params` (hot-swapped) and read via `tpl_param`. New
+  port-editor "Template Params" tab renders the schema as a dynamic form (json
+  fields validated on save). `PortCreate/Update.params` + `_apply_tasks`
+  folding. (Release templates declare no params yet — the tab shows a note.)
 - **Auto-unload local models** (`app/models_layer/unload.py`) — default ON:
   after each run the local model is unloaded to free VRAM. Ollama via
   `keep_alive=0` (native path; `/v1` callers get a follow-up native unload),

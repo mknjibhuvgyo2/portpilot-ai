@@ -63,7 +63,12 @@ export const en = {
     modelAlias: 'Model alias', status: 'Status', actions: 'Actions', noServices: 'No services',
     statusConflict: 'Port in use', conflictHint: 'This port is already used by another process — stop that process or pick another port.',
     createTitle: 'New port service', editTitle: 'Edit port service',
-    tabs: { basic: 'Basic', model: 'Task Flow', prompt: 'Prompt', routes: 'Routes', runtime: 'Runtime', gateway: 'Gateway' },
+    tabs: { basic: 'Basic', model: 'Task Flow', prompt: 'Prompt', routes: 'Routes', params: 'Template Params', runtime: 'Runtime', gateway: 'Gateway' },
+    params: {
+      hint: "All of this template's behavior knobs (formerly hardcoded constants) live here: leave a field empty to use the template default; saves apply immediately (hot-swapped on running ports). Together with task flow / prompts / routes, a template can be rebuilt from scratch and customized.",
+      none: 'This template has no extra params (tune generation params in the task-flow advanced I/O).',
+      jsonPh: 'JSON, empty = default:', defaultIs: 'default', jsonErr: 'invalid JSON — fix it before saving',
+    },
     routes: {
       hint: 'Modularize each endpoint like the task flow: pick a built-in handler, set its public path, describe what it does, enable/disable. Empty = the template\'s native default paths.',
       generic: 'This template uses the standard OpenAI-compatible paths (/v1/chat/completions, etc.); set a custom public path via path_alias on the Port Paths page.',
@@ -191,6 +196,8 @@ export const en = {
     cfgTitle: 'Config backup / migration', cfgHint: 'Export all providers, model aliases and port services as JSON; import on another machine to restore (import is a merge — items with the same name are skipped).',
     auTitle: 'Local model runtime', auHint: 'When on, local models are unloaded after each run to free VRAM (pairs with global serialization so only one model is resident at a time). Ollama unloads immediately via keep_alive=0; LM Studio uses a JIT ttl (unloads after N idle seconds). OneAPI/cloud are unaffected.',
     auEnabled: 'Unload local models after a run (free VRAM)', auTtl: 'LM Studio idle unload (ttl)', auTtlHint: 'seconds; LM Studio only — Ollama unloads immediately',
+    emTitle: 'Eval media processing', emHint: 'Global knobs for how eval ports download/process images & video (formerly EVAL_* env vars); saves apply without a restart.',
+    emVideo: 'Allow video (ffmpeg frame extraction)', emFrames: 'Video frames', emFps: 'Sampling fps', emMaxMb: 'Image cap (MB)', emTimeout: 'Download timeout (s)',
     cfgSecrets: 'Include API keys in export (careful)', cfgExport: 'Export config', cfgImport: 'Import config',
     cfgResult: '✅ Imported: providers +{pa}, aliases +{aa}, ports +{poa} ({ps} existing skipped)', cfgErr: 'Import failed',
     exporter: 'Reverse-proxy export', exporterServer: 'Proxy server', exporterMode: 'Routing mode',

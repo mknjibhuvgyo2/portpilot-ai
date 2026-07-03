@@ -63,7 +63,12 @@ export const ja = {
     modelAlias: 'モデル別名', status: '状態', actions: '操作', noServices: 'サービスなし',
     statusConflict: 'ポート使用中', conflictHint: 'このポートは他のプロセスが使用中で起動できません。該当プロセスを停止するか別のポートを使ってください。',
     createTitle: '新規ポートサービス', editTitle: 'ポートサービスの編集',
-    tabs: { basic: '基本', model: 'タスクフロー', prompt: 'プロンプト', routes: 'ルート', runtime: '実行設定', gateway: 'ゲートウェイ' },
+    tabs: { basic: '基本', model: 'タスクフロー', prompt: 'プロンプト', routes: 'ルート', params: 'テンプレ設定', runtime: '実行設定', gateway: 'ゲートウェイ' },
+    params: {
+      hint: 'このテンプレートの全挙動設定（以前はコード内の定数）をここで編集：空欄はテンプレート既定値。保存すると即時反映（稼働中ポートはホットスワップ）。タスクフロー/プロンプト/ルートと合わせ、テンプレートをゼロから再現・カスタマイズできます。',
+      none: 'このテンプレートに追加パラメータはありません（生成パラメータはタスクフローの高度な I/O で調整）。',
+      jsonPh: 'JSON、空欄=既定：', defaultIs: '既定', jsonErr: 'JSON が無効です。修正してから保存してください',
+    },
     routes: {
       hint: 'タスクフローのように各エンドポイントをモジュール化：組み込みハンドラを選び、公開パスを設定し、用途を記述し、有効/無効を切替。空欄ならテンプレートのネイティブ既定パス。',
       generic: 'このテンプレートは標準 OpenAI 互換パス（/v1/chat/completions 等）を使用します。カスタム公開パスは「ポートパス」ページの path_alias で設定してください。',
@@ -191,6 +196,8 @@ export const ja = {
     cfgTitle: '設定のバックアップ / 移行', cfgHint: '全プロバイダ・モデル別名・ポートサービスを JSON で書出し、別マシンで読込み復元できます（読込はマージ、同名項目はスキップ）。',
     auTitle: 'ローカルモデル実行', auHint: 'オンにすると、各リクエスト後にローカルモデルをアンロードして VRAM を解放します（グローバル直列化と組み合わせて常駐モデルは一度に一つ）。Ollama は keep_alive=0 で即時アンロード、LM Studio は JIT ttl（N 秒アイドル後）。OneAPI/クラウドは対象外。',
     auEnabled: '実行後にローカルモデルをアンロード（VRAM 解放）', auTtl: 'LM Studio アイドルアンロード(ttl)', auTtlHint: '秒；LM Studio 専用、Ollama は即時',
+    emTitle: '評価メディア処理', emHint: '評価系ポートの画像/動画ダウンロード・処理のグローバル設定（旧 EVAL_* 環境変数）。保存すると再起動なしで反映。',
+    emVideo: '動画を許可（ffmpeg フレーム抽出）', emFrames: '動画フレーム数', emFps: 'サンプリング fps', emMaxMb: '画像上限(MB)', emTimeout: 'ダウンロードタイムアウト(秒)',
     cfgSecrets: '書出しに API キーを含める（注意）', cfgExport: '設定を書出', cfgImport: '設定を読込',
     cfgResult: '✅ 読込完了：プロバイダ +{pa}、別名 +{aa}、ポート +{poa}（既存 {ps} 件スキップ）', cfgErr: '読込に失敗',
     exporter: 'リバースプロキシ設定の書き出し', exporterServer: 'プロキシ', exporterMode: 'ルーティング',

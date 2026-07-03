@@ -31,7 +31,7 @@ def list_templates() -> list[dict]:
          "default_prompt": t.default_prompt, "io_format": t.io_format,
          # single-stage templates synthesize one stage from their default_prompt
          "stages": t.stages or [{"name": "系统提示词", "default_prompt": t.default_prompt or ""}],
-         "routes": t.routes}
+         "routes": t.routes, "params_schema": t.params_schema}
         for t in _TEMPLATES.values()
     ]
 

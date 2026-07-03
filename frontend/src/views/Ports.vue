@@ -21,7 +21,7 @@ const aliases = ref<any[]>([])
 const promptFiles = ref<any[]>([])
 const showForm = ref(false)
 const editingId = ref<number | null>(null)
-const tab = ref<'basic' | 'model' | 'prompt' | 'routes' | 'runtime' | 'gateway'>('basic')
+const tab = ref<'basic' | 'model' | 'prompt' | 'routes' | 'params' | 'runtime' | 'gateway'>('basic')
 const logsFor = ref<any | null>(null)
 const logs = ref<any[]>([])
 const err = ref('')
@@ -36,6 +36,7 @@ const tabs = [
   { key: 'model', icon: 'models' },
   { key: 'prompt', icon: 'file' },
   { key: 'routes', icon: 'network' },
+  { key: 'params', icon: 'spark' },
   { key: 'runtime', icon: 'sliders' },
   { key: 'gateway', icon: 'shield' },
 ] as const
@@ -59,6 +60,9 @@ const blank = () => ({
   tasks: [newTask()],
   // Modular endpoint routes (empty = template's native default paths).
   routes: [] as Array<{ path: string; handler: string; enabled: boolean; description: string; tasks?: any[] | null }>,
+  // Template params 模板参数 (empty = template defaults); json-type values kept
+  // as text drafts in paramDrafts and parsed on save.
+  params: {} as Record<string, any>,
 })
 const form = ref(blank())
 
@@ -76,12 +80,12 @@ onMounted(async () => {
     if (p) {
       openEdit(p)
       const qt = String(route.query.tab || '')
-      if (['basic', 'model', 'prompt', 'routes', 'runtime', 'gateway'].includes(qt)) tab.value = qt as any
+      if (['basic', 'model', 'prompt', 'routes', 'params', 'runtime', 'gateway'].includes(qt)) tab.value = qt as any
     }
   }
 })
 
-function onAppTypeChange() { ensureStages(true); resetRoutes() }  // new template -> per-stage prompts + native route defaults
+function onAppTypeChange() { ensureStages(true); resetRoutes(); initParams(null) }  // new template -> stage prompts + route + param defaults
 function addTask() { form.value.tasks.push(newTask()) }
 function removeTask(i: number) { if (form.value.tasks.length > 1) form.value.tasks.splice(i, 1) }
 function onTaskAlias(i: number) {
@@ -151,7 +155,52 @@ function enableRouteFlow(r: any) {
 }
 function clearRouteFlow(r: any) { r.tasks = null }
 
-function openCreate() { editingId.value = null; form.value = blank(); ensureStages(false); resetRoutes(); tab.value = 'basic'; err.value = ''; showForm.value = true }
+// Template params (模板参数): dynamic form driven by the template's params_schema —
+// every formerly-hardcoded template knob. Empty field = template default.
+const paramDrafts = ref<Record<string, string>>({})   // json-type fields edited as text
+const paramsErr = ref('')
+function paramsSchema(): any[] { return (currentTpl.value?.params_schema as any[]) || [] }
+function initParams(stored: Record<string, any> | null) {
+  const p: Record<string, any> = {}
+  const drafts: Record<string, string> = {}
+  for (const s of paramsSchema()) {
+    const v = stored ? stored[s.key] : undefined
+    if (s.type === 'json') drafts[s.key] = (v === undefined || v === null || v === '') ? '' : JSON.stringify(v, null, 2)
+    else if (s.type === 'bool') p[s.key] = (v === undefined || v === null || v === '') ? !!s.default : !!v
+    else p[s.key] = (v === undefined || v === null) ? '' : v
+  }
+  form.value.params = p
+  paramDrafts.value = drafts
+  paramsErr.value = ''
+}
+function paramDefaultText(s: any): string {
+  if (s.type === 'json') { try { const t2 = JSON.stringify(s.default); return t2.length > 60 ? t2.slice(0, 60) + '…' : t2 } catch { return '' } }
+  const t2 = (s.default === undefined || s.default === null) ? '' : String(s.default)
+  return t2.length > 60 ? t2.slice(0, 60) + '…' : t2
+}
+function fillParamDefault(s: any) {
+  if (s.type === 'json') paramDrafts.value[s.key] = JSON.stringify(s.default, null, 2)
+  else form.value.params[s.key] = s.default
+}
+function collectParams(): Record<string, any> | null {
+  paramsErr.value = ''
+  const out: Record<string, any> = {}
+  for (const s of paramsSchema()) {
+    if (s.type === 'json') {
+      const txt = (paramDrafts.value[s.key] || '').trim()
+      if (!txt) continue
+      try { out[s.key] = JSON.parse(txt) } catch { paramsErr.value = `${s.label}: ${t('ports.params.jsonErr')}`; return null }
+    } else if (s.type === 'bool') {
+      if (!!form.value.params[s.key] !== !!s.default) out[s.key] = !!form.value.params[s.key]
+    } else {
+      const v = form.value.params[s.key]
+      if (v !== '' && v !== null && v !== undefined) out[s.key] = v
+    }
+  }
+  return out
+}
+
+function openCreate() { editingId.value = null; form.value = blank(); ensureStages(false); resetRoutes(); initParams(null); tab.value = 'basic'; err.value = ''; showForm.value = true }
 function openEdit(p: any) {
   editingId.value = p.id
   const tasks = (p.extra && Array.isArray(p.extra.tasks) && p.extra.tasks.length)
@@ -165,23 +214,26 @@ function openEdit(p: any) {
         enabled: r.enabled !== false, description: r.description || '' }))
     : defaultRouteRows()
   ensureStages(false)
+  initParams(p.extra && p.extra.params ? p.extra.params : null)
   tab.value = 'basic'; err.value = ''; showForm.value = true
 }
 function closeForm() { showForm.value = false; if (route.query.edit) router.replace({ path: '/ports' }) }
 
 async function save() {
   err.value = ''
+  const params = collectParams()
+  if (params === null) { tab.value = 'params'; return }  // invalid JSON in a param field
   try {
     if (editingId.value) {
       const { name, tasks, routes, streaming, concurrency, timeout,
         max_retries, logging_enabled, log_keep, auth_required, autostart, debug } = form.value
       const { data } = await api.patch(`/api/ports/${editingId.value}`, {
-        name, tasks, routes, streaming, concurrency, timeout,
+        name, tasks, routes, params, streaming, concurrency, timeout,
         max_retries, logging_enabled, log_keep, auth_required, autostart, debug,
       })
       if (data?.hot_swapped) showToast(t('ports.hotSwapped'))
     } else {
-      await api.post('/api/ports', form.value)
+      await api.post('/api/ports', { ...form.value, params })
     }
     closeForm()
     await load()
@@ -564,6 +616,40 @@ async function saveToLibrary() {
                 <WaIcon name="spark" :size="13" class="mt-0.5 shrink-0" />{{ t('ports.routes.vtWarn') }}
               </p>
             </template>
+          </div>
+
+          <!-- template params 模板参数: every formerly-hardcoded template knob, form-driven -->
+          <div v-show="tab === 'params'" class="space-y-3">
+            <p class="text-xs leading-relaxed text-steel-400">{{ t('ports.params.hint') }}</p>
+            <div v-if="!paramsSchema().length" class="rounded-lg border border-steel-200/70 p-3 text-xs text-steel-400 dark:border-steel-800">
+              {{ t('ports.params.none') }}
+            </div>
+            <div v-for="s in paramsSchema()" :key="s.key"
+              class="space-y-1.5 rounded-lg border border-steel-200/70 p-3 dark:border-steel-800">
+              <div class="flex flex-wrap items-center gap-2">
+                <span v-if="s.group" class="chip bg-accent-500/12 text-accent-600 dark:text-accent-300">{{ s.group }}</span>
+                <span class="text-xs font-medium text-steel-600 dark:text-steel-300">{{ s.label }}</span>
+                <span class="font-mono text-[10px] text-steel-400">{{ s.key }}</span>
+                <button v-if="s.type === 'textarea' || s.type === 'json'" type="button"
+                  class="btn-ghost ml-auto !py-0.5 text-[11px]" @click="fillParamDefault(s)">
+                  <WaIcon name="download" :size="12" />{{ t('ports.ioFormat.useDefault') }}
+                </button>
+              </div>
+              <p v-if="s.description" class="text-[11px] leading-relaxed text-steel-400">{{ s.description }}</p>
+              <input v-if="s.type === 'number'" v-model.number="form.params[s.key]" type="number"
+                class="input !w-40 !py-1.5 text-xs" :placeholder="paramDefaultText(s)" />
+              <label v-else-if="s.type === 'bool'" class="flex items-center gap-2 text-xs">
+                <input v-model="form.params[s.key]" type="checkbox" class="accent-accent-500" />{{ s.label }}
+              </label>
+              <input v-else-if="s.type === 'text'" v-model="form.params[s.key]"
+                class="input !py-1.5 text-xs" :placeholder="paramDefaultText(s)" />
+              <textarea v-else-if="s.type === 'textarea'" v-model="form.params[s.key]" rows="10"
+                class="input font-mono text-[11px] leading-relaxed" :placeholder="paramDefaultText(s)"></textarea>
+              <textarea v-else-if="s.type === 'json'" v-model="paramDrafts[s.key]" rows="8"
+                class="input font-mono text-[11px] leading-relaxed" :placeholder="t('ports.params.jsonPh') + ' ' + paramDefaultText(s)"></textarea>
+              <p class="text-[10px] text-steel-400">{{ t('ports.params.defaultIs') }}: <span class="font-mono">{{ paramDefaultText(s) || '—' }}</span></p>
+            </div>
+            <p v-if="paramsErr" class="text-xs text-aka-600">❌ {{ paramsErr }}</p>
           </div>
 
           <!-- runtime -->

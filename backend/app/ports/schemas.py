@@ -44,6 +44,8 @@ class PortCreate(BaseModel):
     tasks: list[TaskItem] | None = None
     # Modular endpoint routing (stored in extra.routes); None = template defaults.
     routes: list[RouteItem] | None = None
+    # Template params 模板参数 (stored in extra.params); None = template defaults.
+    params: dict | None = None
     streaming: bool = True
     concurrency: int = Field(default=8, ge=1, le=256)
     timeout: float = Field(default=120.0, gt=0)
@@ -79,6 +81,7 @@ class PortUpdate(BaseModel):
     debug: bool | None = None
     tasks: list[TaskItem] | None = None
     routes: list[RouteItem] | None = None
+    params: dict | None = None
 
     @field_validator("slug")
     @classmethod

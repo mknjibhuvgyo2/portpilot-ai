@@ -62,7 +62,12 @@ export const zh = {
     modelAlias: '模型别名', status: '状态', actions: '操作', noServices: '暂无服务',
     statusConflict: '端口被占用', conflictHint: '该端口已被其他进程占用，无法启动；请停掉占用方或改用其他端口。',
     createTitle: '新建端口服务', editTitle: '编辑端口服务',
-    tabs: { basic: '基本', model: '任务流', prompt: '提示词', routes: '接口路由', runtime: '运行参数', gateway: '网关' },
+    tabs: { basic: '基本', model: '任务流', prompt: '提示词', routes: '接口路由', params: '模板参数', runtime: '运行参数', gateway: '网关' },
+    params: {
+      hint: '该模板的全部行为设置（原先写死在代码里的常量）都在这里：留空即用模板默认值，改动保存后即生效（运行中的端口热更新）。配合任务流/提示词/接口路由，可以从 0 复刻并自定义整个模板。',
+      none: '该模板没有额外的模板参数（生成参数请在任务流的高级 I/O 里调）。',
+      jsonPh: 'JSON，留空用默认：', defaultIs: '默认', jsonErr: 'JSON 格式无效，请修正后再保存',
+    },
     routes: {
       hint: '像任务流一样把每个接口路径模块化：选择内置处理器、自定义对外路径、写用途说明、按需启用/停用。留空即使用模板原生默认路径。',
       generic: '该模板使用标准 OpenAI 兼容路径（/v1/chat/completions 等）；自定义对外路径请在「端口路径」页用 path_alias 设置。',
@@ -190,6 +195,8 @@ export const zh = {
     cfgTitle: '配置备份 / 迁移', cfgHint: '导出全部厂商、模型别名、端口服务为 JSON，可在另一台机器导入恢复（导入为合并，同名项跳过）。',
     auTitle: '本地模型运行', auHint: '开启后，每个请求跑完自动卸载本地模型、释放显存（配合"全局串行"实现一次只占一个模型）。Ollama 用 keep_alive=0 立即卸载；LM Studio 用 JIT ttl（空闲若干秒后卸载）。OneAPI/云端不受影响。',
     auEnabled: '跑完自动卸载本地模型（释放显存）', auTtl: 'LM Studio 卸载空闲秒数(ttl)', auTtlHint: '秒；LM Studio 专用，Ollama 立即卸载不看这个',
+    emTitle: '评估媒体处理', emHint: '评估类端口下载/处理图片视频的全局参数（原环境变量 EVAL_*），改动即存、无需重启。',
+    emVideo: '允许视频（ffmpeg 抽帧）', emFrames: '视频抽帧数', emFps: '抽帧 fps', emMaxMb: '单图上限(MB)', emTimeout: '下载超时(秒)',
     cfgSecrets: '导出时包含 API Key（谨慎）', cfgExport: '导出配置', cfgImport: '导入配置',
     cfgResult: '✅ 导入完成：厂商 +{pa}、别名 +{aa}、端口 +{poa}（跳过 {ps} 项已存在）', cfgErr: '导入失败',
     exporter: '反代配置导出', exporterServer: '反代软件', exporterMode: '路由模式',
