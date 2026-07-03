@@ -77,7 +77,7 @@ export const en = {
       ownFlow: 'own flow',
       flowTitle: "This path's task flow", flowEnable: 'Give this path its own task flow', flowClear: 'Clear (use port default)',
       flowNone: "Not set: this path uses the port's default task flow (model/prompt/params). Click above to build a complete task flow just for this path.",
-      vtWarn: 'Note: renaming or disabling native paths like /score_json or /match will break VT calls unless you update VT\'s Web.config too.',
+      vtWarn: 'Note: renaming or disabling a native default path breaks existing callers using the old path unless they are updated too.',
     },
     taskflow: {
       title: 'Task Flow', hint: 'A single call runs these tasks in order; each task picks its own model, and each step’s output feeds the next. Templates consume tasks by index (e.g. describe→select, score→report).',

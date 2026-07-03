@@ -4,8 +4,8 @@ A template exposes a set of named built-in *handlers*; which public path each is
 served at, whether it's enabled, and its human description are configurable per
 port via ``config.extra['routes']`` (a list of ``{path, handler, enabled,
 description}``). When no route config is present, every handler is mounted at its
-native default path — so the original contract (e.g. VT's ``/score_json``) is
-unchanged unless the user deliberately edits it.
+native default path — so a template's original endpoint contract is unchanged
+unless the user deliberately edits it.
 
 Each `handlers` entry: ``name -> {"methods": [str], "path": str, "fn": callable,
 "description": str, "main": bool?}``. The matching static metadata for the UI is

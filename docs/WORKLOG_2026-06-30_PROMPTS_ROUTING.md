@@ -38,5 +38,5 @@ templates**, so it gets the mechanism + UI but not the eval-specific content.
 
 1. `git pull` this repo and the dev repo `mknjibhuvgyo2/ai-port-hub` (matching
    worklog: `docs/WORKLOG_2026-06-30_PROMPTS_ROUTING.md`, full detail + 8088 verification).
-2. The eval-template prompt completion, short-answer (VT type 6) fix, and 8088
+2. The eval-template prompt completion, short-answer question-type fix, and 8088
    deploy live only in the dev repo.
