@@ -144,7 +144,9 @@ def build_generic_chat_app(config: PortConfig) -> FastAPI:
         incoming = body.get("messages") or []
         msgs = messages_from_payload(incoming)
         if config.system_prompt and not any(m.role == "system" for m in msgs):
-            msgs.insert(0, ChatMessage(role="system", content=config.system_prompt))
+            from app.apps.params import apply_params_to_text
+            msgs.insert(0, ChatMessage(role="system",
+                                       content=apply_params_to_text(config, config.system_prompt)))
 
         # Per-task advanced I/O: task-configured generation params are defaults;
         # values the caller sent in the request body still win. Image detail fills

@@ -68,6 +68,9 @@ export const en = {
       hint: "All of this template's behavior knobs (formerly hardcoded constants) live here: leave a field empty to use the template default; saves apply immediately (hot-swapped on running ports). Together with task flow / prompts / routes, a template can be rebuilt from scratch and customized.",
       none: 'This template has no extra params (tune generation params in the task-flow advanced I/O).',
       jsonPh: 'JSON, empty = default:', defaultIs: 'default', jsonErr: 'invalid JSON — fix it before saving',
+      customTitle: 'Custom params (extensible)', customAdd: '+ New param',
+      customHint: 'Arbitrary key/value pairs: reference them from ANY prompt with [[param:key]] (stage/system prompts); values can be text, numbers or JSON — extend template behavior without code changes.',
+      customKey: 'key (e.g. brand_name)', customValue: 'value (text/number/JSON)', customEmpty: 'No custom params yet — click "New param" to add one.',
     },
     routes: {
       hint: 'Modularize each endpoint like the task flow: pick a built-in handler, set its public path, describe what it does, enable/disable. Empty = the template\'s native default paths.',

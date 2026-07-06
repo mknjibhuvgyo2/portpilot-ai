@@ -34,7 +34,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   stored in `extra.params` (hot-swapped) and read via `tpl_param`. New
   port-editor "Template Params" tab renders the schema as a dynamic form (json
   fields validated on save). `PortCreate/Update.params` + `_apply_tasks`
-  folding. (Release templates declare no params yet — the tab shows a note.)
+  folding. User-defined custom params can be added in the UI and referenced
+  from any prompt via `[[param:key]]` placeholders (shared engine
+  `app/apps/params.py`, wired into generic_chat's system prompt).
+  (Release templates declare no schema params yet — the tab shows a note.)
 - **Auto-unload local models** (`app/models_layer/unload.py`) — default ON:
   after each run the local model is unloaded to free VRAM. Ollama via
   `keep_alive=0` (native path; `/v1` callers get a follow-up native unload),

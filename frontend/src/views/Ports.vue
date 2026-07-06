@@ -159,20 +159,29 @@ function clearRouteFlow(r: any) { r.tasks = null }
 // every formerly-hardcoded template knob. Empty field = template default.
 const paramDrafts = ref<Record<string, string>>({})   // json-type fields edited as text
 const paramsErr = ref('')
+// user-defined custom params (keys beyond the schema): usable in ANY prompt via
+// [[param:key]] placeholders — the extensibility escape hatch.
+const customParams = ref<Array<{ key: string; value: string }>>([])
 function paramsSchema(): any[] { return (currentTpl.value?.params_schema as any[]) || [] }
 function initParams(stored: Record<string, any> | null) {
   const p: Record<string, any> = {}
   const drafts: Record<string, string> = {}
+  const known = new Set(paramsSchema().map((s) => s.key))
   for (const s of paramsSchema()) {
     const v = stored ? stored[s.key] : undefined
     if (s.type === 'json') drafts[s.key] = (v === undefined || v === null || v === '') ? '' : JSON.stringify(v, null, 2)
     else if (s.type === 'bool') p[s.key] = (v === undefined || v === null || v === '') ? !!s.default : !!v
     else p[s.key] = (v === undefined || v === null) ? '' : v
   }
+  customParams.value = Object.entries(stored || {})
+    .filter(([k]) => !known.has(k))
+    .map(([k, v]) => ({ key: k, value: typeof v === 'string' ? v : JSON.stringify(v) }))
   form.value.params = p
   paramDrafts.value = drafts
   paramsErr.value = ''
 }
+function addCustomParam() { customParams.value.push({ key: '', value: '' }) }
+function removeCustomParam(i: number) { customParams.value.splice(i, 1) }
 function paramDefaultText(s: any): string {
   if (s.type === 'json') { try { const t2 = JSON.stringify(s.default); return t2.length > 60 ? t2.slice(0, 60) + '…' : t2 } catch { return '' } }
   const t2 = (s.default === undefined || s.default === null) ? '' : String(s.default)
@@ -196,6 +205,15 @@ function collectParams(): Record<string, any> | null {
       const v = form.value.params[s.key]
       if (v !== '' && v !== null && v !== undefined) out[s.key] = v
     }
+  }
+  // user-defined custom params: value auto-typed (JSON if parseable, else string)
+  const known = new Set(paramsSchema().map((s) => s.key))
+  for (const row of customParams.value) {
+    const k = (row.key || '').trim()
+    if (!k || known.has(k) || k in out) continue
+    const raw = (row.value ?? '').trim()
+    if (!raw) continue
+    try { out[k] = JSON.parse(raw) } catch { out[k] = raw }
   }
   return out
 }
@@ -648,6 +666,22 @@ async function saveToLibrary() {
               <textarea v-else-if="s.type === 'json'" v-model="paramDrafts[s.key]" rows="8"
                 class="input font-mono text-[11px] leading-relaxed" :placeholder="t('ports.params.jsonPh') + ' ' + paramDefaultText(s)"></textarea>
               <p class="text-[10px] text-steel-400">{{ t('ports.params.defaultIs') }}: <span class="font-mono">{{ paramDefaultText(s) || '—' }}</span></p>
+            </div>
+
+            <!-- user-defined custom params: extensible, referenced from prompts via [[param:key]] -->
+            <div class="space-y-2 rounded-lg border border-kin-400/40 bg-kin-400/5 p-3">
+              <div class="flex items-center gap-2">
+                <WaIcon name="spark" :size="14" class="text-kin-600 dark:text-kin-400" />
+                <span class="text-xs font-medium text-steel-600 dark:text-steel-300">{{ t('ports.params.customTitle') }}</span>
+                <button type="button" class="btn-ghost ml-auto" @click="addCustomParam"><WaIcon name="plus" :size="13" />{{ t('ports.params.customAdd') }}</button>
+              </div>
+              <p class="text-[11px] leading-relaxed text-steel-500 dark:text-steel-400">{{ t('ports.params.customHint') }}</p>
+              <div v-for="(row, i) in customParams" :key="i" class="flex items-center gap-2">
+                <input v-model="row.key" class="input !w-48 !py-1.5 font-mono text-xs" :placeholder="t('ports.params.customKey')" />
+                <input v-model="row.value" class="input !py-1.5 font-mono text-xs" :placeholder="t('ports.params.customValue')" />
+                <button class="btn-ghost !px-2 text-aka-500" @click="removeCustomParam(i)"><WaIcon name="trash" :size="14" /></button>
+              </div>
+              <p v-if="!customParams.length" class="text-[11px] text-steel-400">{{ t('ports.params.customEmpty') }}</p>
             </div>
             <p v-if="paramsErr" class="text-xs text-aka-600">❌ {{ paramsErr }}</p>
           </div>
