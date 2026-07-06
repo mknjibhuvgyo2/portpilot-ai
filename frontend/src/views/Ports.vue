@@ -366,8 +366,10 @@ async function saveToLibrary() {
       </table>
     </div>
 
-    <!-- Create / Edit modal with tabs -->
-    <div v-if="showForm" class="fixed inset-y-0 right-0 left-[var(--sidebar-w,0px)] z-50 flex items-center justify-center overflow-y-auto bg-steel-950/50 p-4 backdrop-blur-sm" @click.self="closeForm">
+    <!-- Create / Edit modal with tabs (teleported to body so the app topbar's
+         stacking context can't cover the modal top) -->
+    <Teleport to="body">
+    <div v-if="showForm" class="fixed inset-0 z-50 flex items-center justify-center bg-steel-950/50 p-3 backdrop-blur-sm" @click.self="closeForm">
       <div class="card flex h-[88vh] w-[94vw] max-w-[1700px] flex-col animate-fade-up !p-0 shadow-glow">
         <div class="flex items-center justify-between border-b border-steel-200/70 px-5 py-4 dark:border-steel-800">
           <h2 class="heading text-sm">{{ editingId ? t('ports.editTitle') : t('ports.createTitle') }}</h2>
@@ -737,9 +739,11 @@ async function saveToLibrary() {
         </div>
       </div>
     </div>
+    </Teleport>
 
-    <!-- Logs modal -->
-    <div v-if="logsFor" class="fixed inset-y-0 right-0 left-[var(--sidebar-w,0px)] z-50 flex items-center justify-center overflow-y-auto bg-steel-950/50 p-4 backdrop-blur-sm" @click.self="logsFor = null">
+    <!-- Logs modal (teleported for the same stacking-context reason) -->
+    <Teleport to="body">
+    <div v-if="logsFor" class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-steel-950/50 p-4 backdrop-blur-sm" @click.self="logsFor = null">
       <div class="card my-auto max-h-[88vh] w-[94vw] max-w-[1400px] animate-fade-up overflow-auto">
         <div class="mb-3 flex items-center justify-between">
           <h2 class="heading text-sm"><WaIcon name="logs" :size="18" /> {{ t('ports.logsTitle') }} · {{ logsFor.name }}</h2>
@@ -759,5 +763,6 @@ async function saveToLibrary() {
         </div>
       </div>
     </div>
+    </Teleport>
   </div>
 </template>
