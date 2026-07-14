@@ -59,6 +59,7 @@ export const ja = {
     runningHere: 'このGPUのサービス', noServiceHere: '稼働中のサービスなし',
   },
   ports: {
+    category: { generic: '汎用', eval: '評価', agent: 'エージェント' },
     title: 'ポートサービス', newService: '新規サービス', name: '名称', port: 'ポート', path: 'パス',
     modelAlias: 'モデル別名', status: '状態', actions: '操作', noServices: 'サービスなし',
     statusConflict: 'ポート使用中', conflictHint: 'このポートは他のプロセスが使用中で起動できません。該当プロセスを停止するか別のポートを使ってください。',

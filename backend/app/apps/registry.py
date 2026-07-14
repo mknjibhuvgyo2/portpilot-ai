@@ -25,9 +25,17 @@ def get_template(app_type: str) -> AppTemplate | None:
     return _TEMPLATES.get(app_type)
 
 
+def _category(t: AppTemplate) -> str:
+    c = getattr(t, "category", "generic")
+    if c == "generic" and t.app_type.endswith("_eval"):
+        return "eval"
+    return c
+
+
 def list_templates() -> list[dict]:
     return [
         {"app_type": t.app_type, "title": t.title, "description": t.description,
+         "category": _category(t),
          "default_prompt": t.default_prompt, "io_format": t.io_format,
          # single-stage templates synthesize one stage from their default_prompt
          "stages": t.stages or [{"name": "系统提示词", "default_prompt": t.default_prompt or ""}],

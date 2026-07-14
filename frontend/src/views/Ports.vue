@@ -111,6 +111,18 @@ function toggleAdv(i: number) { advOpen.value[i] = !advOpen.value[i] }
 // declared by the selected template. The output shape is decided by the prompt,
 // so this is documentation surfaced next to the prompt editor.
 const currentTpl = computed(() => templates.value.find((tp: any) => tp.app_type === form.value.app_type) || null)
+// template picker grouped by category (generic / eval / agent)
+const templateGroups = computed(() => {
+  const order = ['generic', 'agent', 'eval']
+  const groups: Record<string, any[]> = {}
+  for (const tp of templates.value) (groups[tp.category || 'generic'] ||= []).push(tp)
+  return Object.keys(groups)
+    .sort((a, b) => (order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99))
+    .map((c) => ({ category: c, label: t('ports.category.' + c), items: groups[c] }))
+})
+function isAgent(appType: string): boolean {
+  return templates.value.find((tp: any) => tp.app_type === appType)?.category === 'agent'
+}
 const currentIo = computed(() => currentTpl.value?.io_format || null)
 const showIoFormat = ref(false)
 const showStageDefault = ref<Record<number, boolean>>({})
@@ -338,7 +350,10 @@ async function saveToLibrary() {
           <tr v-for="p in ports" :key="p.id"
             class="cursor-pointer border-b border-steel-100 transition-colors last:border-0 hover:bg-accent-50/50 dark:border-steel-800/60 dark:hover:bg-steel-800/40"
             @click="openEdit(p)">
-            <td class="px-4 py-3 font-medium">{{ p.name }}</td>
+            <td class="px-4 py-3 font-medium">
+              {{ p.name }}
+              <span v-if="isAgent(p.app_type)" class="chip ml-1 bg-brand-500/15 text-brand-600 dark:text-brand-300"><WaIcon name="spark" :size="11" />Agent</span>
+            </td>
             <td class="stat px-4 py-3">{{ p.port }}</td>
             <td class="px-4 py-3 font-mono text-xs text-steel-500">/gw/{{ p.slug }}/</td>
             <td class="px-4 py-3">{{ p.model_alias || '—' }}</td>
@@ -393,7 +408,9 @@ async function saveToLibrary() {
             <div>
               <label class="label">{{ t('ports.appType') }}</label>
               <select v-model="form.app_type" class="input disabled:opacity-50" :disabled="!!editingId" @change="onAppTypeChange">
-                <option v-for="tp in templates" :key="tp.app_type" :value="tp.app_type">{{ tp.title }}</option>
+                <optgroup v-for="g in templateGroups" :key="g.category" :label="g.label">
+                  <option v-for="tp in g.items" :key="tp.app_type" :value="tp.app_type">{{ tp.title }}</option>
+                </optgroup>
               </select>
             </div>
           </div>

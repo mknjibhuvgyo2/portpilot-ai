@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Template categories** — `AppTemplate.category` (`generic` | `eval` |
+  `agent`) exposed via `/api/ports/templates`; the port creator groups
+  templates by category (`<optgroup>`) and agent-type ports get an "Agent"
+  badge in the ports table. New `ports.category` i18n strings (zh/en/ja).
+  This prepares the platform/menu for a future agent template family (the
+  release ships no agent templates yet).
+
+### Fixed
+- **Latent 500 on per-path task flows** — `app/apps/routing.py` lazily
+  imported `app.apps.eval_common` (not part of the release), so any route
+  configured with its own task flow raised ImportError at request time.
+  `ACTIVE_TASKS` is now defined locally in `routing.py`.
 - **Default I/O format viewer** — the port editor's prompt menu shows each
   template's endpoints, input/output JSON examples and full default prompt
   (read-only), noting the output format is decided by the prompt.
@@ -19,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`{path, handler, enabled, description, tasks}`), falling back to native
   default paths. A Routes tab configures each path via a submenu.
 - **Per-path task flow** — each route can carry its own complete task flow
-  (per-path model/prompt/I/O) via `eval_common.ACTIVE_TASKS`; `RouteItem.tasks`
+  (per-path model/prompt/I/O) via `routing.ACTIVE_TASKS`; `RouteItem.tasks`
   + a yield-dependency activate it per request. New reusable `TaskFlowEditor`
   Vue component. (Release ships no eval templates, so the Routes tab shows the
   generic note and prompts collapse to a single stage.)

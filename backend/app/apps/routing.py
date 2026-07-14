@@ -14,16 +14,21 @@ registry).
 """
 from __future__ import annotations
 
+import contextvars
 from typing import Any
 
 from fastapi import Depends
+
+# The task flow bound to the route handling the current request (if any).
+# Templates that support per-path flows read this instead of config.extra.
+ACTIVE_TASKS: "contextvars.ContextVar[list | None]" = contextvars.ContextVar(
+    "porthub_active_tasks", default=None)
 
 
 def _tasks_dependency(tasks: list):
     """A yield-dependency that activates this route's own task flow for the request,
     then restores the previous flow afterwards."""
     async def _dep():
-        from app.apps.eval_common import ACTIVE_TASKS
         token = ACTIVE_TASKS.set(tasks)
         try:
             yield

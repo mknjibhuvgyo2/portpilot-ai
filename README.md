@@ -60,6 +60,7 @@
 - **Global request serialization** — process-wide guard: the machine handles at most one port request at a time, the rest queue (no concurrent model inference); GET/health bypass. Default limit 1, tunable via `HUB_GLOBAL_MAX_CONCURRENCY` (restart to apply).
 - **Auto-unload local models** — default on: after each run the local model is unloaded to free VRAM (Ollama via keep_alive=0, LM Studio via JIT ttl); Settings card with toggle + ttl seconds; cloud/OneAPI unaffected.
 - **Template params** — a new "Template Params" tab in the port editor: templates declare all their behavior knobs via `params_schema` (number/bool/text/textarea/JSON), rendered as a dynamic form; empty = template default, saves hot-swap. Custom params can be created too (any key/value; text/number/JSON) and referenced from any prompt via `[[param:key]]` — extensible without code changes. Together with task flows / per-stage prompts / modular routes, a template can be rebuilt from scratch and customized in the UI.
+- **Template categories** — templates are grouped as generic / agent / eval: the port creator's template dropdown uses grouped options and agent-type ports show an "Agent" badge in the list, preparing the platform for a future agent template family.
 
 **PromptLab**
 - Give input→output examples (images supported) and **infer a system prompt**; pick constraints, test reproduction, save to the prompt library, one-click apply to a port.

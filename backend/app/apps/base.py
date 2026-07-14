@@ -39,6 +39,10 @@ class AppTemplate(abc.ABC):
     app_type: str = "base"
     title: str = "Base App"
     description: str = ""
+    # Grouping for the template picker / port list: "generic" | "eval" | "agent".
+    # The agent family (db agent now, fuller agents later) reads local data/tools
+    # but keeps a pure-JSON contract.
+    category: str = "generic"
     # Suggested system prompt the frontend pre-fills when this template is picked
     # (only if the user hasn't typed one). Empty = no suggestion.
     default_prompt: str = ""
@@ -62,7 +66,7 @@ class AppTemplate(abc.ABC):
     # Template-specific tunables ("模板参数"): every behavior knob that used to be a
     # hardcoded constant, declared so the UI can render a form and a port created
     # from scratch can reproduce/customize the template fully. Values are stored in
-    # config.extra["params"] and read via eval_common.tpl_param (hot-swappable).
+    # config.extra["params"] and read via params.tpl_param (hot-swappable).
     # Shape: [{"key", "label", "type": "number"|"bool"|"text"|"textarea"|"json",
     #          "default", "description", "group"?}]
     params_schema: list[dict[str, Any]] | None = None
