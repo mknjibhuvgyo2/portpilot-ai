@@ -9,6 +9,10 @@ updates:
     labels: ["dependencies", "backend"]
     commit-message:
       prefix: "chore(deps)"
+    groups:
+      backend:
+        patterns: ["*"]
+        update-types: ["minor", "patch", "major"]
 
   # Frontend npm deps
   - package-ecosystem: "npm"
@@ -19,6 +23,10 @@ updates:
     labels: ["dependencies", "frontend"]
     commit-message:
       prefix: "chore(deps)"
+    groups:
+      frontend:
+        patterns: ["*"]
+        update-types: ["minor", "patch", "major"]
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
@@ -28,6 +36,10 @@ updates:
     labels: ["dependencies", "ci"]
     commit-message:
       prefix: "chore(ci)"
+    groups:
+      ci:
+        patterns: ["*"]
+        update-types: ["minor", "patch", "major"]
 
   # Docker base images
   - package-ecosystem: "docker"
@@ -37,3 +49,7 @@ updates:
     labels: ["dependencies", "docker"]
     commit-message:
       prefix: "chore(docker)"
+    groups:
+      docker:
+        patterns: ["*"]
+        update-types: ["minor", "patch", "major"]
