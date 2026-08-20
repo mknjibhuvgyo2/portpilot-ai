@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Audio templates** — two new app types: `asr`
+  (`POST /v1/audio/transcriptions`, multipart) and `tts`
+  (`POST /v1/audio/speech`, returns binary audio). Both follow the OpenAI audio
+  API, so stock OpenAI clients work unchanged and any OpenAI-compatible speech
+  server can back them. The model layer gains `transcribe()`/`speak()` with the
+  same fallback chain as embeddings, implemented for the OpenAI-compatible
+  provider. Per-port defaults live in `extra.audio` (ASR `language`; TTS
+  `voice`/`response_format`/`speed`) and request fields override them. New
+  `audio` template category with zh/en/ja strings.
+
 - **Template categories** — `AppTemplate.category` (`generic` | `eval` |
   `agent`) exposed via `/api/ports/templates`; the port creator groups
   templates by category (`<optgroup>`) and agent-type ports get an "Agent"

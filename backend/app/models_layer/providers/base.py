@@ -59,6 +59,21 @@ class BaseProvider(abc.ABC):
         Override per provider."""
         raise NotImplementedError("this provider does not support rerank")
 
+    async def transcribe(self, model: str, audio: bytes, filename: str = "audio.wav",
+                         params: dict | None = None) -> dict:
+        """Speech -> text. Returns an OpenAI-shaped dict with at least {"text": str}.
+        `params` carries language/prompt/response_format/temperature. Override
+        per provider."""
+        raise NotImplementedError("this provider does not support transcription")
+
+    async def speak(self, model: str, text: str,
+                    params: dict | None = None) -> tuple[bytes, str]:
+        """Text -> speech. Returns (audio_bytes, content_type). `params` carries
+        voice/response_format/speed. Unlike every other method here the payload
+        is binary, so the content-type has to come back with it -- the caller
+        cannot guess whether it got mp3 or wav. Override per provider."""
+        raise NotImplementedError("this provider does not support speech synthesis")
+
     async def raw_chat(self, model: str, body: dict) -> dict:
         """Transparent passthrough: forward the full OpenAI request body (model
         overridden) to /v1/chat/completions and return the raw JSON response.

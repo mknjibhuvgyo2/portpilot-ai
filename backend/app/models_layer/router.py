@@ -252,6 +252,47 @@ class ModelRouter:
                     await asyncio.sleep(min(0.5 * (attempt + 1), 3))
         raise RuntimeError(f"All rerank targets failed for '{resolved.alias}': {last_err}")
 
+    async def transcribe(self, resolved: ResolvedAlias, audio: bytes,
+                         filename: str = "audio.wav",
+                         params: dict | None = None) -> dict:
+        """Transcribe audio through the alias's targets, with the same fallback
+        chain as embed(). Targets that can't transcribe are skipped."""
+        last_err: Exception | None = None
+        for target in _attempt_order(resolved.targets, _strategy_of(resolved), _pin_gpu_of(resolved)):
+            provider = build_provider(target.kind, target.base_url, target.api_key,
+                                      self.timeout, extra=target.extra)
+            for attempt in range(self.max_retries + 1):
+                try:
+                    return await provider.transcribe(target.model, audio, filename, params)
+                except NotImplementedError:
+                    last_err = RuntimeError(f"{target.label} has no transcription")
+                    break  # try the next target
+                except Exception as e:  # noqa: BLE001
+                    last_err = e
+                    log.warning("transcribe target %s attempt %d failed: %s", target.label, attempt, e)
+                    await asyncio.sleep(min(0.5 * (attempt + 1), 3))
+        raise RuntimeError(f"All transcription targets failed for '{resolved.alias}': {last_err}")
+
+    async def speak(self, resolved: ResolvedAlias, text: str,
+                    params: dict | None = None) -> tuple[bytes, str]:
+        """Synthesize speech through the alias's targets, with the same fallback
+        chain as embed(). Targets that can't synthesize are skipped."""
+        last_err: Exception | None = None
+        for target in _attempt_order(resolved.targets, _strategy_of(resolved), _pin_gpu_of(resolved)):
+            provider = build_provider(target.kind, target.base_url, target.api_key,
+                                      self.timeout, extra=target.extra)
+            for attempt in range(self.max_retries + 1):
+                try:
+                    return await provider.speak(target.model, text, params)
+                except NotImplementedError:
+                    last_err = RuntimeError(f"{target.label} has no speech synthesis")
+                    break  # try the next target
+                except Exception as e:  # noqa: BLE001
+                    last_err = e
+                    log.warning("speak target %s attempt %d failed: %s", target.label, attempt, e)
+                    await asyncio.sleep(min(0.5 * (attempt + 1), 3))
+        raise RuntimeError(f"All speech targets failed for '{resolved.alias}': {last_err}")
+
     async def raw_chat(self, resolved: ResolvedAlias, body: dict) -> dict:
         """Transparent (non-stream) passthrough of a full OpenAI body through the
         alias's targets, with the same fallback chain. Targets that can't do raw

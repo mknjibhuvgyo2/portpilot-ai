@@ -12,7 +12,8 @@ const auth = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 
-const ENDPOINT_BY_TYPE: Record<string, string> = { embedding: '/v1/embeddings', rerank: '/v1/rerank' }
+const ENDPOINT_BY_TYPE: Record<string, string> = { embedding: '/v1/embeddings', rerank: '/v1/rerank',
+  asr: '/v1/audio/transcriptions', tts: '/v1/audio/speech' }
 const endpointPath = computed(() => ENDPOINT_BY_TYPE[form.value.app_type] || '/v1/chat/completions')
 
 const ports = ref<any[]>([])
@@ -113,7 +114,7 @@ function toggleAdv(i: number) { advOpen.value[i] = !advOpen.value[i] }
 const currentTpl = computed(() => templates.value.find((tp: any) => tp.app_type === form.value.app_type) || null)
 // template picker grouped by category (generic / eval / agent)
 const templateGroups = computed(() => {
-  const order = ['generic', 'agent', 'eval']
+  const order = ['generic', 'audio', 'agent', 'eval']
   const groups: Record<string, any[]> = {}
   for (const tp of templates.value) (groups[tp.category || 'generic'] ||= []).push(tp)
   return Object.keys(groups)

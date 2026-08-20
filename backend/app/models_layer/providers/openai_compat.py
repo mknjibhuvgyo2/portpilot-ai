@@ -19,6 +19,23 @@ def _msg_to_dict(m: ChatMessage) -> dict[str, Any]:
     return {"role": m.role, "content": m.content}
 
 
+def _audio_mime(filename: str) -> str:
+    """Best-effort content type for the uploaded part.
+
+    Some servers sniff the part's declared content-type rather than the bytes,
+    and a webm recording announced as audio/wav gets rejected before it is ever
+    decoded. Unknown suffixes fall through to octet-stream and let the server
+    sniff for itself.
+    """
+    ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
+    return {
+        "wav": "audio/wav", "mp3": "audio/mpeg", "m4a": "audio/mp4",
+        "mp4": "audio/mp4", "webm": "audio/webm", "ogg": "audio/ogg",
+        "oga": "audio/ogg", "opus": "audio/opus", "flac": "audio/flac",
+        "aac": "audio/aac", "amr": "audio/amr",
+    }.get(ext, "application/octet-stream")
+
+
 class OpenAICompatProvider(BaseProvider):
     kind = "openai_compat"
 
@@ -150,6 +167,53 @@ class OpenAICompatProvider(BaseProvider):
         results.sort(key=lambda x: x["relevance_score"], reverse=True)
         u = data.get("usage") or {}
         return results, Usage(prompt_tokens=int(u.get("prompt_tokens", 0) or 0))
+
+    def _headers_multipart(self) -> dict[str, str]:
+        """Headers minus Content-Type.
+
+        httpx has to set that header itself for a multipart upload because it
+        appends the boundary; leaving the hardcoded application/json in place
+        makes the server parse the body as JSON and reject the file.
+        """
+        h = self._headers()
+        h.pop("Content-Type", None)
+        return h
+
+    async def transcribe(self, model: str, audio: bytes, filename: str = "audio.wav",
+                         params: dict | None = None) -> dict:
+        # OpenAI /v1/audio/transcriptions: multipart with `file` + `model`.
+        # GPUStack (vox-box), faster-whisper-server and vLLM all speak this.
+        form: dict[str, Any] = {"model": model}
+        for k in ("language", "prompt", "response_format", "temperature"):
+            v = (params or {}).get(k)
+            if v not in (None, ""):
+                form[k] = str(v)
+        files = {"file": (filename, audio, _audio_mime(filename))}
+        async with httpx.AsyncClient(timeout=self.timeout, trust_env=False) as client:
+            r = await client.post(self._url("/audio/transcriptions"),
+                                  headers=self._headers_multipart(),
+                                  data=form, files=files)
+            r.raise_for_status()
+            # response_format=text/srt/vtt come back as plain text, not JSON --
+            # asking for one of those and then calling .json() turns an otherwise
+            # successful request into a hard failure.
+            if "application/json" in r.headers.get("content-type", ""):
+                data = r.json()
+                return data if isinstance(data, dict) else {"text": str(data)}
+            return {"text": r.text}
+
+    async def speak(self, model: str, text: str,
+                    params: dict | None = None) -> tuple[bytes, str]:
+        payload: dict[str, Any] = {"model": model, "input": text}
+        for k in ("voice", "response_format", "speed"):
+            v = (params or {}).get(k)
+            if v not in (None, ""):
+                payload[k] = v
+        async with httpx.AsyncClient(timeout=self.timeout, trust_env=False) as client:
+            r = await client.post(self._url("/audio/speech"), headers=self._headers(),
+                                  json=payload)
+            r.raise_for_status()
+            return r.content, r.headers.get("content-type", "audio/mpeg")
 
     async def raw_chat(self, model: str, body: dict) -> dict:
         payload = {**body, "model": model, "stream": False}

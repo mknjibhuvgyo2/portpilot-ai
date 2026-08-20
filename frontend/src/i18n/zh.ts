@@ -58,7 +58,7 @@ export const zh = {
     runningHere: '运行于此卡的服务', noServiceHere: '无运行中的服务',
   },
   ports: {
-    category: { generic: '通用', eval: '评估', agent: '智能体' },
+    category: { generic: '通用', audio: '语音', eval: '评估', agent: '智能体' },
     title: '端口服务', newService: '新建服务', name: '名称', port: '端口', path: '路径',
     modelAlias: '模型别名', status: '状态', actions: '操作', noServices: '暂无服务',
     statusConflict: '端口被占用', conflictHint: '该端口已被其他进程占用，无法启动；请停掉占用方或改用其他端口。',

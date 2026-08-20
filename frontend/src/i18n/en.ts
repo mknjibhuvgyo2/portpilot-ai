@@ -59,7 +59,7 @@ export const en = {
     runningHere: 'Services on this GPU', noServiceHere: 'No running service',
   },
   ports: {
-    category: { generic: 'Generic', eval: 'Evaluation', agent: 'Agent' },
+    category: { generic: 'Generic', audio: 'Audio', eval: 'Evaluation', agent: 'Agent' },
     title: 'Ports', newService: 'New service', name: 'Name', port: 'Port', path: 'Path',
     modelAlias: 'Model alias', status: 'Status', actions: 'Actions', noServices: 'No services',
     statusConflict: 'Port in use', conflictHint: 'This port is already used by another process — stop that process or pick another port.',

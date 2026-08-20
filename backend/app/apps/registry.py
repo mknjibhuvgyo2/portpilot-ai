@@ -1,11 +1,13 @@
 """Registry of available app templates."""
 from __future__ import annotations
 
+from app.apps.asr import AsrTemplate
 from app.apps.base import AppTemplate
 from app.apps.embedding import EmbeddingTemplate
 from app.apps.generic_chat import GenericChatTemplate
 from app.apps.passthrough import PassthroughTemplate
 from app.apps.rerank import RerankTemplate
+from app.apps.tts import TtsTemplate
 from app.apps.templates import (
     CustomTemplate,
     ScoringTemplate,
@@ -51,5 +53,7 @@ register(VisionTemplate())
 register(SummarizeTemplate())
 register(EmbeddingTemplate())
 register(RerankTemplate())
+register(AsrTemplate())
+register(TtsTemplate())
 register(PassthroughTemplate())
 register(CustomTemplate())
