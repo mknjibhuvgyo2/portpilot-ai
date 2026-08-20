@@ -26,6 +26,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   release ships no agent templates yet).
 
 ### Fixed
+- **TTS endpoint returned 500 on a malformed body** — `request.json()` raises
+  on a body that isn't valid UTF-8 JSON and the error escaped unhandled, so a
+  client encoding mistake looked like a backend failure. That and a non-object
+  body now return 400.
+
 - **Latent 500 on per-path task flows** — `app/apps/routing.py` lazily
   imported `app.apps.eval_common` (not part of the release), so any route
   configured with its own task flow raised ImportError at request time.

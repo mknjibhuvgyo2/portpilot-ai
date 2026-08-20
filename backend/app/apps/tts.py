@@ -65,7 +65,15 @@ def build_tts_app(config: PortConfig) -> FastAPI:
 
     @app.post("/v1/audio/speech")
     async def speech(request: Request):
-        body = await request.json()
+        try:
+            body = await request.json()
+        except Exception:  # noqa: BLE001
+            # A body that isn't valid UTF-8 JSON is a client error. Letting the
+            # decode error escape reports 500, which reads as "synthesis broke"
+            # when the caller simply sent the wrong encoding.
+            raise HTTPException(400, "body must be UTF-8 encoded JSON")
+        if not isinstance(body, dict):
+            raise HTTPException(400, "body must be a JSON object")
         text = body.get("input")
         if not isinstance(text, str) or not text.strip():
             raise HTTPException(400, "'input' (non-empty string) is required")

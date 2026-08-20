@@ -200,6 +200,11 @@ def test_tts_validation(monkeypatch):
     assert c.post("/v1/audio/speech", json={}).status_code == 400
     assert c.post("/v1/audio/speech", json={"input": "   "}).status_code == 400
     assert c.post("/v1/audio/speech", json={"input": 123}).status_code == 400
+    # a body that isn't UTF-8 JSON is the caller's fault, not the backend's
+    bad = c.post("/v1/audio/speech", content="\xa3\xa8not utf-8",
+                 headers={"Content-Type": "application/json"})
+    assert bad.status_code == 400
+    assert c.post("/v1/audio/speech", json=["not", "an", "object"]).status_code == 400
     import app.apps.tts as tmod
     too_long = "字" * (tmod.MAX_INPUT_CHARS + 1)
     assert c.post("/v1/audio/speech", json={"input": too_long}).status_code == 400

@@ -64,3 +64,19 @@ ASR takes multipart form data, and TTS returns raw binary audio.
   overrides, validation, the multipart wire format, the plain-text response
   path, and the mime guesser).
 - Frontend: `npm run build` OK.
+
+## Follow-up: malformed TTS body is 400, not 500
+
+`await request.json()` raises on a body that isn't valid UTF-8 JSON, and the
+exception escaped as an unhandled 500 — which reads as "the synthesis server
+broke" when the caller simply sent the wrong encoding. Both that and a
+non-object body now return 400. Found by sending Chinese through a shell that
+re-encoded it to GBK.
+
+Measured against a real backend (faster-whisper-medium and CosyVoice-300M on
+one GPU) once the endpoints were wired up: transcription of 5.62s of speech
+takes 0.42-0.44s end to end, synthesis takes 0.84s for 10 characters and 1.83s
+for 28. Synthesis dominates and scales with length, so a caller that wants low
+latency should split a long line into clauses and stream them rather than
+waiting for one call to return.
+
